@@ -221,14 +221,14 @@ Other supplementary materials are available at: <a href='http://47.93.21.181/luc
 
 ## 7. Citation          
 @article {LucaOne,        
-author = {Yong He and Pan Fang and Yongtao Shan and Yuanfei Pan and Yanhong Wei and Yichang Chen and Yihao Chen and Yi Liu and Zhenyu Zeng and Zhan Zhou and Feng Zhu and Edward C. Holmes and Jieping Ye and Jun Li and Yuelong Shu and Mang Shi and Zhaorong Li},
-title = {LucaOne: Generalized Biological Foundation Model with Unified Nucleic Acid and Protein Language},
-elocation-id = {2024.05.10.592927},
-year = {2024},
-doi = {10.1101/2024.05.10.592927},
-publisher = {Cold Spring Harbor Laboratory},
-URL = {https://www.biorxiv.org/content/early/2024/05/14/2024.05.10.592927},
-eprint = {https://www.biorxiv.org/content/early/2024/05/14/2024.05.10.592927.full.pdf},
-journal = {bioRxiv}
+author = {Yong He and Pan Fang and Yongtao Shan and Yuanfei Pan and Yanhong Wei and Yichang Chen and Yihao Chen and Yi Liu and Zhenyu Zeng and Zhan Zhou and Feng Zhu and Edward C. Holmes and Jieping Ye and Jun Li and Yuelong Shu and Mang Shi and Zhaorong Li},             
+title = {LucaOne: Generalized Biological Foundation Model with Unified Nucleic Acid and Protein Language},             
+elocation-id = {2024.05.10.592927},              
+year = {2024},               
+doi = {10.1101/2024.05.10.592927},              
+publisher = {Cold Spring Harbor Laboratory},            
+URL = {https://www.biorxiv.org/content/early/2024/05/14/2024.05.10.592927},              
+eprint = {https://www.biorxiv.org/content/early/2024/05/14/2024.05.10.592927.full.pdf},               
+journal = {bioRxiv}               
 }
 
