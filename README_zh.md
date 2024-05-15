@@ -109,6 +109,7 @@ python inference_embedding_lucaone.py \
     --seq_idx 1 \
     --save_path ../embedding/lucaone/test/prot \
     --embedding_complete \
+    --embedding_complete_seg_overlap \
     --gpu 0   
  
 # 对核酸(DNA或者RNA)进行embedding(输入csv文件，需要指明id与seq的列号)   
@@ -131,6 +132,7 @@ python inference_embedding_lucaone.py \
     --seq_idx 1 \
     --save_path ../embedding/lucaone/test/gene \
     --embedding_complete \
+    --embedding_complete_seg_overlap \
     --gpu 0   
 ```
 
@@ -153,7 +155,8 @@ python inference_embedding_lucaone.py \
     --seq_type prot \
     --fasta ../data/prot/test_prot.fasta \
     --save_path ../embedding/lucaone/test/prot/ \
-    --embedding_complete
+    --embedding_complete \
+    --embedding_complete_seg_overlap \
     --gpu 0   
 ```
 
@@ -176,7 +179,8 @@ python inference_embedding_lucaone.py \
     --seq_type gene \
     --fasta ../data/prot/test_gene.fasta \
     --save_path ../embedding/lucaone/test/gene/ \
-    --embedding_complete
+    --embedding_complete \
+    --embedding_complete_seg_overlap \
     --gpu 0   
 ```
 

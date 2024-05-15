@@ -166,6 +166,7 @@ python inference_embedding_lucaone.py \
     --input_file ../data/test_data/prot/test_prot.fasta \
     --save_path ../embedding/lucaone/test_data/prot/test_prot \
     --embedding_complete \
+    --embedding_complete_seg_overlap \
     --gpu 0   
 ```
 
@@ -189,6 +190,7 @@ python inference_embedding_lucaone.py \
     --input_file ../data/test_data/gene/test_gene.fasta \
     --save_path ../embedding/lucaone/test_data/gene/test_gene \
     --embedding_complete \
+    --embedding_complete_seg_overlap \
     --gpu 0   
 ```   
 
