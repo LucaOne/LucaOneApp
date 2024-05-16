@@ -75,8 +75,8 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 * seq_type: 输入序列的类型，gene表示核酸，prot表示蛋白          
 * fasta fasta文件，id需要是命名文件名是合法的，因为使用id去命名embedding文件            
 * save_path: embedding文件保存路径     
-* embedding_complete: 如果显存不够一次性推理整个序列，是否进行分段补全（如果不使用该参数，则每次截断0.95*len直到显卡可容纳的长度  
-* embedding_complete_seg_overlap: 当 'embedding_complete=True'的时候, 使用对序列分段embedding的分段是否重叠(overlap sliding window)
+* embedding_complete: 当 `embedding_complete`被设置的时候, `truncation_seq_length`是无效的. 如果显存不够一次性推理整个序列，是否进行分段补全（如果不使用该参数，则每次截断0.95*len直到显卡可容纳的长度  
+* embedding_complete_seg_overlap: 当`embedding_complete`被设置的时候, 使用对序列分段embedding的分段是否重叠(overlap sliding window)
 * gpu: 使用哪一个gpu id       
 
 #### 3) 可选参数:     
@@ -101,7 +101,7 @@ python inference_embedding_lucaone.py \
     --llm_step 5600000 \
     --embedding_type matrix \
     --trunc_type right \
-    --truncation_seq_length 4094 \
+    --truncation_seq_length 100000 \
     --matrix_add_special_token \
     --seq_type prot \
     --input_file ../data/prot/test_prot_dataset.csv \
@@ -124,7 +124,7 @@ python inference_embedding_lucaone.py \
     --llm_step 5600000 \
     --embedding_type matrix \
     --trunc_type right \
-    --truncation_seq_length 4094 \
+    --truncation_seq_length 100000 \
     --matrix_add_special_token \
     --seq_type gene \
     --input_file ../data/gene/test_gene_dataset.csv \
@@ -150,7 +150,7 @@ python inference_embedding_lucaone.py \
     --llm_step 5600000 \
     --embedding_type matrix \
     --trunc_type right \
-    --truncation_seq_length 4094 \
+    --truncation_seq_length 100000 \
     --matrix_add_special_token \
     --seq_type prot \
     --fasta ../data/prot/test_prot.fasta \
@@ -174,7 +174,7 @@ python inference_embedding_lucaone.py \
     --llm_step 5600000 \
     --embedding_type matrix \
     --trunc_type right \
-    --truncation_seq_length 4094 \
+    --truncation_seq_length 100000 \
     --matrix_add_special_token \
     --seq_type gene \
     --fasta ../data/prot/test_gene.fasta \
