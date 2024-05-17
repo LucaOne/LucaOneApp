@@ -134,8 +134,10 @@ def metrics_multi_class_for_pred(targets, preds, probs=None, average="macro", sa
     :param preds:  1d-array class index (n_samples, )
     :return:
     '''
-    if targets.ndim == 2:
+    if targets.ndim == 2 and targets.shape[1] > 1:
         targets = np.argmax(targets, axis=1)
+    elif targets.ndim == 2 and targets.shape[1] == 1:
+        targets = np.squeeze(targets, axis=1)
 
     acc = accuracy_score(targets, preds)
     prec = precision_score(targets, preds, average=average)
@@ -503,6 +505,7 @@ def plot_confusion_matrix_for_binary_class(targets, preds, cm=None, savepath=Non
     else:
         plt.show()
     plt.close("all")
+
 
 if __name__ == "__main__":
     '''multi_class'''
