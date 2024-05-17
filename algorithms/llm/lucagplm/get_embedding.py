@@ -417,7 +417,7 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                 try:
                     # 第一个已经处理，滑动窗口
                     if model_args.trunc_type == "right":
-                        last_end = 0
+                        last_end = init_cur_segment_len
                         seg_idx = 0
                         for pos_idx in range(init_cur_segment_len, ori_seq_len - sliding_window, sliding_window):
                             seg_idx += 1
@@ -457,7 +457,7 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                             else:
                                 append_emb = np.concatenate((append_emb, seg_emb[-remain:]), axis=0)
                     else:
-                        last_start = -init_cur_segment_len - sliding_window
+                        last_start = -init_cur_segment_len
                         seg_idx = 0
                         for pos_idx in range(-init_cur_segment_len, -ori_seq_len + sliding_window, -sliding_window):
                             seg_idx += 1
@@ -714,8 +714,7 @@ def main(model_args):
                                                lucaone_global_model,
                                                model_args.seq,
                                                model_args.seq_type,
-                                               model_args.device,
-                                               matrix_add_special_token=model_args.matrix_add_special_token)
+                                               model_args.device)
         print("processed seq length: %d" % processed_seq_len)
         # losses, outputs, hidden_states, attentions, cross_attentions, lucaone_global_attentions,
         if isinstance(emb, list):
