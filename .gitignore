@@ -1,1 +1,4 @@
 /.idea
+*.log
+*.tmp
+.DS_Store
