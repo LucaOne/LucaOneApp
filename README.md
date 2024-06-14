@@ -34,7 +34,7 @@ source ~/.bashrc
 conda create -n lucaone_app python=3.9.13
 
 
-#### 4) activate lucaone
+#### 4) activate lucaone_app
 conda activate lucaone_app
 
 ### step3:  install other requirements
