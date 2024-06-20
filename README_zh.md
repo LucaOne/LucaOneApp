@@ -51,8 +51,8 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 ## 3. Inference          
 脚本在目录`algorithms/`下：    
 `inference_embedding_lucaone.py`: embedding using LucaOne(for nucleic acid or protein)         
-`inference_embedding_dnabert2`: embedding using DNABert2(only for nucleic acid)      
-`inference_embedding_esm`: embedding using ESM2(only for protein)     
+`inference_embedding_dnabert2.py`: embedding using DNABert2(only for nucleic acid)      
+`inference_embedding_esm.py`: embedding using ESM2(only for protein)     
 
 机器：GPU可用的机器(如我们的A100可用的机器)         
 位置：cd LucaOneApp/algorithms                

@@ -54,8 +54,8 @@ Copy the **TrainedCheckPoint Files(`models/` + `logs/`)** from <href> http://47.
 ## 4. Inference       
 Scripts in `algorithms/`     
 `inference_embedding_lucaone.py`: embedding using LucaOne(for nucleic acid or protein).           
-`inference_embedding_dnabert2`: embedding using DNABert2(only for nucleic acid).     
-`inference_embedding_esm`: embedding using ESM2(only for protein).       
+`inference_embedding_dnabert2.py`: embedding using DNABert2(only for nucleic acid).     
+`inference_embedding_esm.py`: embedding using ESM2(only for protein).       
 
 ### Parameters
 1) LucaOne checkpoint parameters:      
