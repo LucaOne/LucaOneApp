@@ -253,6 +253,7 @@ def main(args):
                 emb_filename = seq_id.replace(" ", "").replace("/", "_") + ".pt"
             else:
                 emb_filename = seq_id + ".pt"
+            emb_filename = embedding_type + "_" + emb_filename
             embedding_filepath = os.path.join(emb_save_path, emb_filename)
             emb, processed_seq_len = predict_embedding([seq_id, seq_type, seq],
                                                        args.trunc_type,

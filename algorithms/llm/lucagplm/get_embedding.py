@@ -669,6 +669,7 @@ def main(model_args):
                 emb_filename = seq_id + ".pt"
             if "/" in emb_filename:
                 emb_filename = emb_filename.replace("/", "_")
+            emb_filename = embedding_type + "_" + emb_filename
             embedding_filepath = os.path.join(emb_save_path, emb_filename)
             if not os.path.exists(embedding_filepath):
                 ori_seq_len = len(seq)

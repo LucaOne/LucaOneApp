@@ -83,7 +83,7 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 * 如果参数: fasta输入的是csv文件，需要使用id_idx与seq_idx来指定在csv中的列号(0开始)           
 
 #### 4) 注意:    
-一个序列输出一个embedding文件，使用seq_id进行命名，因此seq_id最好不能有特殊字符，比如空格或者"/"字符           
+一个序列输出一个embedding文件，使用seq_id进行命名(e.g. `matrix_seq_1000.pt`)，因此seq_id最好不能有特殊字符，比如空格或者"/"字符           
 
 #### 5) Examples:              
 
