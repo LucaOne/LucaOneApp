@@ -93,7 +93,7 @@ A sequence outputs one embedding file named with `seq_id`, so the `seq_id` must 
 
 **Notice:**
 1. need to specify the column index of the sequence id(*id_idx**) and sequence(**seq_idx**), starting index: 0 .
-2. The **sequence id** must be globally unique in the input file and cannot contain special characters (because the embedding file stored is named by the sequence id).  
+2. The **sequence id** must be globally unique in the input file and cannot contain special characters (because the embedding file stored is named by the sequence id, e.g. `matrix_seq_1000.pt`).  
 
 ```shell
 # for protein
