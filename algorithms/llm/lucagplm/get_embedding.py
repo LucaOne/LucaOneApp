@@ -26,7 +26,7 @@ try:
     from ....args import Args
     from ....file_operator import fasta_reader, csv_reader
     from ....utils import set_seed, to_device, get_labels, get_parameter_number, \
-        gene_seq_replace, clean_seq, available_gpu_id, download_trained_checkpoint_lucaone
+        gene_seq_replace, clean_seq, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
     from ....batch_converter import BatchConverter
     from .v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
     from .v2_0.lucaone_gplm_config import LucaGPLMConfig as LucaGPLMConfigV2_0
@@ -35,7 +35,7 @@ except ImportError as e:
     from algorithms.args import Args
     from algorithms.file_operator import fasta_reader, csv_reader
     from algorithms.utils import set_seed, to_device, get_labels, get_parameter_number, \
-        gene_seq_replace, clean_seq, available_gpu_id, download_trained_checkpoint_lucaone
+        gene_seq_replace, clean_seq, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
     from algorithms.batch_converter import BatchConverter
     from algorithms.llm.lucagplm.v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
     from algorithms.llm.lucagplm.v2_0.lucaone_gplm_config import LucaGPLMConfig as LucaGPLMConfigV2_0
@@ -659,6 +659,7 @@ def main(model_args):
                     seq_id, seq = row[0].strip(), row[1].upper()
             else:
                 seq_id, seq = row[model_args.id_idx].strip(), row[model_args.seq_idx].upper()
+            '''
             if " " in seq_id:
                 ss = seq_id.split(" ")
                 if len(ss[0]) > 3:
@@ -670,6 +671,8 @@ def main(model_args):
             if "/" in emb_filename:
                 emb_filename = emb_filename.replace("/", "_")
             emb_filename = embedding_type + "_" + emb_filename
+            '''
+            emb_filename = calc_emb_filename_by_seq_id(seq_id=seq_id, embedding_type=embedding_type)
             embedding_filepath = os.path.join(emb_save_path, emb_filename)
             if not os.path.exists(embedding_filepath):
                 ori_seq_len = len(seq)

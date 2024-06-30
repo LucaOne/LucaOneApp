@@ -19,11 +19,11 @@ sys.path.append(".")
 sys.path.append("..")
 sys.path.append("../algorithms")
 try:
-    from .utils import available_gpu_id
+    from .utils import available_gpu_id, calc_emb_filename_by_seq_id
     from .file_operator import fasta_reader, csv_reader
     from .llm.dnabert2.inference_embedding import predict_embedding
 except ImportError:
-    from algorithms.utils import available_gpu_id
+    from algorithms.utils import available_gpu_id, calc_emb_filename_by_seq_id
     from algorithms.file_operator import fasta_reader, csv_reader
     from algorithms.llm.dnabert2.inference_embedding import predict_embedding
 
@@ -82,6 +82,7 @@ def main(model_args):
                     seq_id, seq = row[0].strip(), row[1].upper()
             else:
                 seq_id, seq = row[model_args.id_idx].strip(), row[model_args.seq_idx].upper()
+            '''
             if " " in seq_id:
                 emb_filename = seq_id.split(" ")[0] + ".pt"
             else:
@@ -89,6 +90,8 @@ def main(model_args):
             if "/" in emb_filename:
                 emb_filename = emb_filename.replace("/", "_")
             emb_filename = embedding_type + "_" + emb_filename
+            '''
+            emb_filename = calc_emb_filename_by_seq_id(seq_id=seq_id, embedding_type=embedding_type)
             embedding_filepath = os.path.join(emb_save_path, emb_filename)
             if not os.path.exists(embedding_filepath):
                 ori_seq_len = len(seq)
