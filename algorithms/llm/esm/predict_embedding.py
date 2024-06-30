@@ -27,10 +27,10 @@ sys.path.append("../../../")
 sys.path.append("../../../algorithms")
 try:
     from file_operator import fasta_reader, csv_reader
-    from utils import clean_seq, available_gpu_id
+    from utils import clean_seq, available_gpu_id, calc_emb_filename_by_seq_id
 except ImportError:
     from algorithms.file_operator import fasta_reader, csv_reader
-    from algorithms.utils import clean_seq, available_gpu_id
+    from algorithms.utils import clean_seq, available_gpu_id, calc_emb_filename_by_seq_id
 
 
 def enable_cpu_offloading(model):
@@ -249,11 +249,14 @@ def main(args):
                     seq_id, seq = row[0].strip(), row[1].upper()
             else:
                 seq_id, seq = row[args.id_idx].strip(), row[args.seq_idx].upper()
+            '''
             if " " in seq_id or "/" in seq_id:
                 emb_filename = seq_id.replace(" ", "").replace("/", "_") + ".pt"
             else:
                 emb_filename = seq_id + ".pt"
             emb_filename = embedding_type + "_" + emb_filename
+            '''
+            emb_filename = calc_emb_filename_by_seq_id(seq_id=seq_id, embedding_type=embedding_type)
             embedding_filepath = os.path.join(emb_save_path, emb_filename)
             emb, processed_seq_len = predict_embedding([seq_id, seq_type, seq],
                                                        args.trunc_type,

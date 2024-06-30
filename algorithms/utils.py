@@ -738,6 +738,24 @@ def lcm(x, y):
     return x*y//n
 
 
+def calc_emb_filename_by_seq_id(seq_id, embedding_type):
+    """
+    根据seq_id得到emb_filename
+    :param seq_id:
+    :param embedding_type:
+    :return:
+    """
+    if "|" in seq_id:
+        strs = seq_id.split("|")
+        if len(strs) > 1:
+            emb_filename = embedding_type + "_" + strs[1].strip() + ".pt"
+        else:
+            emb_filename = embedding_type + "_" + seq_id.replace(" ", "").replace("/", "_") + ".pt"
+    else:
+        emb_filename = embedding_type + "_" + seq_id.replace(" ", "").replace("/", "_") + ".pt"
+    return emb_filename
+
+
 def download_file(url, local_filename):
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
