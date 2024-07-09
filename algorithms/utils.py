@@ -745,6 +745,8 @@ def calc_emb_filename_by_seq_id(seq_id, embedding_type):
     :param embedding_type:
     :return:
     """
+    if seq_id[0] == ">":
+        seq_id = seq_id[1:]
     if "|" in seq_id:
         strs = seq_id.split("|")
         if len(strs) > 1:

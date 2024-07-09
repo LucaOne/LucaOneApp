@@ -23,7 +23,7 @@ except ImportError:
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description='ESM Embedding')
+    parser = argparse.ArgumentParser(description='ESM2 Embedding')
     parser.add_argument("--llm_type", type=str, default="esm2", choices=["esm2"],  help="the llm type")
     parser.add_argument("--llm_version", type=str, default="3B", choices=["3B"], help="the llm version")
     parser.add_argument("--embedding_type", type=str, default="matrix", choices=["matrix", "vector"], help="the llm embedding type.")
