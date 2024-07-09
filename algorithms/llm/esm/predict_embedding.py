@@ -194,15 +194,17 @@ def predict_embedding(sample, trunc_type, embedding_type, repr_layers=[-1], trun
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description='ESM/SRM Embedding')
+    parser = argparse.ArgumentParser(description='ESM2 Embedding')
     # for logging
-    parser.add_argument("--llm_type", type=str, default="lucaone_gplm", choices=["esm", "ESM", "lucaone_gplm"],  help="llm type")
+    parser.add_argument("--llm_type", type=str, default="esm2", choices=["esm2"],  help="llm type")
     parser.add_argument("--llm_version", type=str, default="3B", choices=["15B", "3B", "650M", "150M"], help="llm version")
     parser.add_argument("--embedding_type", type=str, default="matrix", choices=["matrix", "vector", "contact"], help="llm embedding type.")
     parser.add_argument("--trunc_type", type=str, default="right", choices=["left", "right"], help="llm trunc type of seq.")
     parser.add_argument("--truncation_seq_length", type=int, default=4094, help="truncation seq length.")
     parser.add_argument('--gpu', type=int, default=-1, help="gpu idx.")
     parser.add_argument("--input_file", type=str, default=None, help="the input filepath(.fasta or .csv)")
+    parser.add_argument("--id_idx", type=int, default=None, help="id col idx(0 start) for csv")
+    parser.add_argument("--seq_idx", type=int, default=None, help="seq col idx(0 start) for csv")
     parser.add_argument("--seq", type=str, default=None, help="the input seq")
     parser.add_argument("--seq_type", type=str, default=None, required=True, choices=["gene", "prot"], help="seq type")
     parser.add_argument("--save_path", type=str, default=None, help="embedding file save path")
@@ -258,15 +260,15 @@ def main(args):
             '''
             emb_filename = calc_emb_filename_by_seq_id(seq_id=seq_id, embedding_type=embedding_type)
             embedding_filepath = os.path.join(emb_save_path, emb_filename)
-            emb, processed_seq_len = predict_embedding([seq_id, seq_type, seq],
-                                                       args.trunc_type,
-                                                       embedding_type,
-                                                       repr_layers=[-1],
-                                                       truncation_seq_length=args.truncation_seq_length,
-                                                       device=args.device,
-                                                       version=args.llm_version,
-                                                       matrix_add_special_token=args.matrix_add_special_token
-                                                       )
+            emb, processed_seq = predict_embedding([seq_id, seq_type, seq],
+                                                   args.trunc_type,
+                                                   embedding_type,
+                                                   repr_layers=[-1],
+                                                   truncation_seq_length=args.truncation_seq_length,
+                                                   device=args.device,
+                                                   version=args.llm_version,
+                                                   matrix_add_special_token=args.matrix_add_special_token
+                                                   )
             # print("seq_len: %d" % len(seq))
             # print("emb shape:", embedding_info.shape)
             torch.save(emb, embedding_filepath)
