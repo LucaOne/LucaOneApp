@@ -187,7 +187,7 @@ def predict_embedding(sample, trunc_type, embedding_type, repr_layers=[-1], trun
                 return None, None
         except RuntimeError as e:
             if e.args[0].startswith("CUDA out of memory"):
-                print(f"Failed (CUDA out of memory) on sequence {sample[0]} of length {len(sample[1])}.")
+                print(f"Failed (CUDA out of memory) on sequence {sample[0]} of length {len(sample[2] if len(sample) > 2 else sample[1])}.")
                 print("Please reduce the 'truncation_seq_length'")
             raise Exception(e)
     return None, None
