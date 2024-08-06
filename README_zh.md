@@ -1,4 +1,10 @@
 # LucaOne APP      
+
+## TimeLine
+* 2024/08/01: add `checkpoint=17600000`, location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/models/lucagplm/v2.0/token_level,span_level,seq_level,structure_level/lucaone_gplm/20231125113045/checkpoint-step17600000/'>checkpoint-step17600000</a>
+  This project will download the checkpoint automatically according to the value of parameter **--llm_step**.
+
+
 对核酸序列或者蛋白序列进行embedding，embedding有两种方式：matrix矩阵与vector向量。          
 建议：如果使用matrix，在后续的下游网络中具体使用时，可以使用: 
 * [CLS] Vector
