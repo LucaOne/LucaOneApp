@@ -1,4 +1,10 @@
 # LucaOne APP   
+
+## TimeLine
+* 2024/08/01: add `checkpoint=17600000`, location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/models/lucagplm/v2.0/token_level,span_level,seq_level,structure_level/lucaone_gplm/20231125113045/checkpoint-step17600000/'>checkpoint-step17600000</a>
+This project will download the checkpoint automatically according to the value of parameter **--llm_step**.          
+
+
 ## 1. Embedding     
 Two embedding methods for nucleic acid or protein sequence: `matrix` or `vector`.        
 suggestion: If `matrix` is applied, it can be converted to a vector in the downstream networks as follows when using the embedding matrix:
@@ -64,7 +70,7 @@ Scripts in `algorithms/`
     * llm_version: the version of LucaOne, default: v2.0         
     * llm_task_level: the pretrained tasks of LucaOne, default: token_level,span_level,seq_level,structure_level          
     * llm_time_str: the trained time str of LucaOne, default: 20231125113045         
-    * llm_step:  the trained checkpoint of LucaOne, default: 5600000
+    * llm_step:  the trained checkpoint of LucaOne, default: 5600000 or 17600000
 
 2) Important parameters:     
     * embedding_type: `matrix` or `vector`, output the embedding matrix or [CLS] vector for the entire sequence, recommend: matrix.      
