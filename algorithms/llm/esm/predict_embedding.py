@@ -106,7 +106,7 @@ def predict_pdb(sample, trunc_type, num_recycles=4, truncation_seq_length=4096, 
     return None, None, None, None
 
 
-esm_global_model, esm_global_alphabet, esm_global_version = None, None, None
+esm_global_model, esm_global_alphabet, esm_global_version, esm_global_layer_size = None, None, None, None
 
 
 def predict_embedding(sample, trunc_type, embedding_type, repr_layers=[-1], truncation_seq_length=4094, device=None, version="3B", matrix_add_special_token=False):
@@ -122,7 +122,7 @@ def predict_embedding(sample, trunc_type, embedding_type, repr_layers=[-1], trun
     :param matrix_add_special_token
     :return: embedding, processed_seq_len
     '''
-    global esm_global_model, esm_global_alphabet, esm_global_version
+    global esm_global_model, esm_global_alphabet, esm_global_version, esm_global_layer_size
     assert "bos" in embedding_type or "representations" in embedding_type \
            or "matrix" in embedding_type or "vector" in embedding_type or "contacts" in embedding_type
     if len(sample) > 2:
@@ -135,26 +135,26 @@ def predict_embedding(sample, trunc_type, embedding_type, repr_layers=[-1], trun
             protein_seq = protein_seq[-truncation_seq_length:]
         else:
             protein_seq = protein_seq[:truncation_seq_length]
-    if esm_global_model is None or esm_global_alphabet is None or esm_global_version is None or esm_global_version != version:
+    if esm_global_model is None or esm_global_alphabet is None or esm_global_version is None or esm_global_version != version or esm_global_layer_size is None:
         if version == "15B":
             llm_name = "esm2_t48_15B_UR50D"
-            layer_size = 48
+            esm_global_layer_size = 48
             esm_global_model, esm_global_alphabet = pretrained.load_model_and_alphabet("esm2_t48_15B_UR50D")
         elif version == "3B":
             llm_name = "esm2_t36_3B_UR50D"
-            layer_size = 36
+            esm_global_layer_size = 36
             esm_global_model, esm_global_alphabet = pretrained.load_model_and_alphabet("esm2_t36_3B_UR50D")
         elif version == "650M":
             llm_name = "esm2_t33_650M_UR50D"
-            layer_size = 33
+            esm_global_layer_size = 33
             esm_global_model, esm_global_alphabet = pretrained.load_model_and_alphabet("esm2_t33_650M_UR50D")
         elif version == "150M":
             llm_name = "esm2_t30_150M_UR50D"
-            layer_size = 30
+            esm_global_layer_size = 30
             esm_global_model, esm_global_alphabet = pretrained.load_model_and_alphabet("esm2_t30_150M_UR50D")
         else:
             raise Exception("not support this version=%s" % version)
-        print("LLM: %s, version: %s, layer_idx: %d, device: %s" % (llm_name, version, layer_size, str(device)))
+        print("LLM: %s, version: %s, layer_idx: %d, device: %s" % (llm_name, version, esm_global_layer_size, str(device)))
         esm_global_version = version
     if torch.cuda.is_available() and device is not None:
         esm_global_model = esm_global_model.to(device)
@@ -180,15 +180,15 @@ def predict_embedding(sample, trunc_type, embedding_type, repr_layers=[-1], trun
             truncate_len = min(truncation_seq_length, len(raw_seqs[0]))
             if "representations" in embedding_type or "matrix" in embedding_type:
                 if matrix_add_special_token:
-                    embedding = out["representations"][layer_size].to(device="cpu")[0, 0: truncate_len + 2].clone().numpy()
+                    embedding = out["representations"][esm_global_layer_size].to(device="cpu")[0, 0: truncate_len + 2].clone().numpy()
                 else:
-                    embedding = out["representations"][layer_size].to(device="cpu")[0, 1: truncate_len + 1].clone().numpy()
+                    embedding = out["representations"][esm_global_layer_size].to(device="cpu")[0, 1: truncate_len + 1].clone().numpy()
                 embeddings["representations"] = embedding
             if "bos" in embedding_type or "vector" in embedding_type:
-                embedding = out["representations"][layer_size].to(device="cpu")[0, 0].clone().numpy()
+                embedding = out["representations"][esm_global_layer_size].to(device="cpu")[0, 0].clone().numpy()
                 embeddings["bos_representations"] = embedding
             if "contacts" in embedding_type:
-                embedding = out["contacts"][layer_size].to(device="cpu")[0, :, :].clone().numpy()
+                embedding = out["contacts"][esm_global_layer_size].to(device="cpu")[0, :, :].clone().numpy()
                 embeddings["contacts"] = embedding
             if len(embeddings) > 1:
                 return embeddings, protein_seq
