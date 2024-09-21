@@ -51,11 +51,16 @@ lucaone_global_model_version = None
 lucaone_global_args_info, lucaone_global_model_config, lucaone_global_model, lucaone_global_tokenizer = None, None, None, None
 
 
-def load_model(log_filepath, model_dirpath):
+def load_model(
+        log_filepath,
+        model_dirpath,
+        embedding_inference=True
+):
     '''
     create tokenizer, model config, model
     :param log_filepath:
     :param model_dirpath:
+    :param embedding_inference:
     :return:
     '''
     with open(log_filepath, "r") as rfp:
@@ -113,6 +118,7 @@ def load_model(log_filepath, model_dirpath):
     args.max_length = args_info["max_length"]
     args.classifier_size = args_info["classifier_size"]
     args.pretrained_model_name = None
+    args.embedding_inference = embedding_inference
     try:
         model = model_class.from_pretrained(model_dirpath, args=args)
     except Exception as e:
@@ -330,7 +336,12 @@ def predict_embedding(llm_dirpath, sample, trunc_type, embedding_type, repr_laye
     if lucaone_global_log_filepath != cur_log_filepath or lucaone_global_model_dirpath != cur_model_dirpath:
         lucaone_global_log_filepath = cur_log_filepath
         lucaone_global_model_dirpath = cur_model_dirpath
-        lucaone_global_args_info, lucaone_global_model_config, lucaone_global_model, lucaone_global_tokenizer = load_model(lucaone_global_log_filepath, lucaone_global_model_dirpath)
+        lucaone_global_args_info, lucaone_global_model_config, lucaone_global_model, lucaone_global_tokenizer = \
+            load_model(
+                log_filepath=lucaone_global_log_filepath,
+                model_dirpath=lucaone_global_model_dirpath,
+                embedding_inference=True
+            )
     lucaone_global_args_info["max_length"] = truncation_seq_length
 
     if seq_type == "prot":
@@ -624,7 +635,12 @@ def main(model_args):
     if lucaone_global_log_filepath != cur_log_filepath or lucaone_global_model_dirpath != cur_model_dirpath:
         lucaone_global_log_filepath = cur_log_filepath
         lucaone_global_model_dirpath = cur_model_dirpath
-        lucaone_global_args_info, lucaone_global_model_config, lucaone_global_model, lucaone_global_tokenizer = load_model(lucaone_global_log_filepath, lucaone_global_model_dirpath)
+        lucaone_global_args_info, lucaone_global_model_config, lucaone_global_model, lucaone_global_tokenizer = \
+            load_model(
+                log_filepath=lucaone_global_log_filepath,
+                model_dirpath=lucaone_global_model_dirpath,
+                embedding_inference=True
+            )
     if model_args.gpu >= 0:
         gpu_id = model_args.gpu
     else:
