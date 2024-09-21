@@ -140,7 +140,7 @@ python inference_embedding_lucaone.py \
     --truncation_seq_length 100000 \
     --matrix_add_special_token \
     --seq_type gene \
-    --input_file ../data/test_data/gene/test_gene2.csv \
+    --input_file ../data/test_data/gene/test_gene.csv \
     --id_idx 0 \
     --seq_idx 1 \
     --save_path ../embedding/lucaone/test_data/gene/test_gene \
