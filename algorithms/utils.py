@@ -776,6 +776,7 @@ def download_folder(base_url, file_names, local_dir):
         os.makedirs(local_dir)
 
     for file_name in file_names:
+        print(f"Downloading {file_name}...")
         file_url = f"{base_url}/{file_name}"
         local_filename = os.path.join(local_dir, file_name)
         download_file(file_url, local_filename)
@@ -811,7 +812,7 @@ def download_trained_checkpoint_lucaone(
         if not exists:
             print("*" * 20 + "Downloading" + "*" * 20)
             print("Downloading LucaOne TrainedCheckPoint: LucaOne-%s-%s-%s ..." % (llm_version, llm_time_str, llm_step))
-            print("Wait a moment, please.")
+            print("Wait a moment(total 8GB), please.")
             # download logs
             if not os.path.exists(logs_local_dir):
                 os.makedirs(logs_local_dir)
