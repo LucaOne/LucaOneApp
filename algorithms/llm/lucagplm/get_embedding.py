@@ -25,7 +25,7 @@ from collections import OrderedDict
 try:
     from ....args import Args
     from ....file_operator import fasta_reader, csv_reader
-    from ....utils import set_seed, to_device, get_labels, get_parameter_number, \
+    from ....utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
         gene_seq_replace, clean_seq, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
     from ....batch_converter import BatchConverter
     from .v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
@@ -34,7 +34,7 @@ try:
 except ImportError as e:
     from algorithms.args import Args
     from algorithms.file_operator import fasta_reader, csv_reader
-    from algorithms.utils import set_seed, to_device, get_labels, get_parameter_number, \
+    from algorithms.utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
         gene_seq_replace, clean_seq, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
     from algorithms.batch_converter import BatchConverter
     from algorithms.llm.lucagplm.v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
@@ -658,7 +658,8 @@ def main(model_args):
     emb_save_path = save_path
     print("emb save dir: %s" % emb_save_path)
     if seq_type not in ["gene", "prot"]:
-        seq_type = "prot"
+        print("Error! arg: --seq_type=%s is not gene or prot" % seq_type)
+        return
     if not os.path.exists(emb_save_path):
         os.makedirs(emb_save_path)
     if model_args.input_file:
@@ -688,6 +689,9 @@ def main(model_args):
                 emb_filename = emb_filename.replace("/", "_")
             emb_filename = embedding_type + "_" + emb_filename
             '''
+            if not seq_type_is_match_seq(seq_type, seq):
+                print("Error! the input seq(seq_id=%s) not match its seq_type=%s: %s" % (seq_id, seq_type, seq))
+                return
             emb_filename = calc_emb_filename_by_seq_id(seq_id=seq_id, embedding_type=embedding_type)
             embedding_filepath = os.path.join(emb_save_path, emb_filename)
             if not os.path.exists(embedding_filepath):
@@ -728,6 +732,9 @@ def main(model_args):
         print("embedding over, done: %d" % done)
     elif model_args.seq:
         print("input seq length: %d" % len(model_args.seq))
+        if not seq_type_is_match_seq(model_args.seq_type, model_args.seq):
+            print("Error! the input seq(seq_id=%s) not match its seq_type=%s: %s" % (model_args.seq_id, model_args.seq_type, model_args.seq))
+            return
         emb, processed_seq_len = get_embedding(lucaone_global_args_info,
                                                lucaone_global_model_config,
                                                lucaone_global_tokenizer,
