@@ -24,7 +24,7 @@ from transformers import AutoTokenizer, PretrainedConfig, BertTokenizer
 from collections import OrderedDict
 try:
     from ....args import Args
-    from ....file_operator import fasta_reader, csv_reader
+    from ....file_operator import fasta_reader, csv_reader, tsv_reader
     from ....utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
         gene_seq_replace, clean_seq, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
     from ....batch_converter import BatchConverter
@@ -33,7 +33,7 @@ try:
     from .v2_0.alphabet import Alphabet as AlphabetV2_0
 except ImportError as e:
     from algorithms.args import Args
-    from algorithms.file_operator import fasta_reader, csv_reader
+    from algorithms.file_operator import fasta_reader, csv_reader, tsv_reader
     from algorithms.utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
         gene_seq_replace, clean_seq, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
     from algorithms.batch_converter import BatchConverter
@@ -154,15 +154,17 @@ def load_model(
 def encoder(args_info, model_config, seq, seq_type, tokenizer):
     if args_info["tokenization"]:
         # seq to seq ids
-        encoding = tokenizer.encode_plus(text=seq,
-                                         text_pair=None,
-                                         add_special_tokens=args_info["add_special_tokens"],
-                                         padding="max_length",
-                                         max_length=model_config.max_position_embeddings,
-                                         return_attention_mask=True,
-                                         return_token_type_ids=not model_config.no_token_type_embeddings,
-                                         return_length=False,
-                                         truncation=True)
+        encoding = tokenizer.encode_plus(
+            text=seq,
+            text_pair=None,
+            add_special_tokens=args_info["add_special_tokens"],
+            padding="max_length",
+            max_length=model_config.max_position_embeddings,
+            return_attention_mask=True,
+            return_token_type_ids=not model_config.no_token_type_embeddings,
+            return_length=False,
+            truncation=True
+        )
         processed_seq_len = sum(encoding["attention_mask"])
     elif args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]:
         seqs = [seq]
@@ -241,15 +243,17 @@ def encoder(args_info, model_config, seq, seq_type, tokenizer):
         else:
             processed_seq_len = len(seq) + 2 if args_info["add_special_tokens"] else len(seq)
         seq = " ".join(list(seq))
-        encoding = tokenizer.encode_plus(text=seq,
-                                         text_pair=None,
-                                         add_special_tokens=args_info["add_special_tokens"],
-                                         padding="max_length",
-                                         max_length=model_config.max_position_embeddings,
-                                         return_attention_mask=True,
-                                         return_token_type_ids=not model_config.no_token_type_embeddings,
-                                         return_length=False,
-                                         truncation=True)
+        encoding = tokenizer.encode_plus(
+            text=seq,
+            text_pair=None,
+            add_special_tokens=args_info["add_special_tokens"],
+            padding="max_length",
+            max_length=model_config.max_position_embeddings,
+            return_attention_mask=True,
+            return_token_type_ids=not model_config.no_token_type_embeddings,
+            return_length=False,
+            truncation=True
+        )
     if seq_type == "prot":
         new_encoding = {}
         for item in encoding.items():
@@ -258,7 +262,15 @@ def encoder(args_info, model_config, seq, seq_type, tokenizer):
     return encoding, processed_seq_len
 
 
-def get_embedding(args_info, model_config, tokenizer, model, seq, seq_type, device):
+def get_embedding(
+        args_info,
+        model_config,
+        tokenizer,
+        model,
+        seq,
+        seq_type,
+        device
+):
     if args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]:
         if seq_type == "gene":
             seq = gene_seq_replace(seq)
@@ -304,7 +316,16 @@ def get_embedding(args_info, model_config, tokenizer, model, seq, seq_type, devi
         return None, None
 
 
-def predict_embedding(llm_dirpath, sample, trunc_type, embedding_type, repr_layers=[-1], truncation_seq_length=4094, device=None, matrix_add_special_token=False):
+def predict_embedding(
+        llm_dirpath,
+        sample,
+        trunc_type,
+        embedding_type,
+        repr_layers=[-1],
+        truncation_seq_length=4094,
+        device=None,
+        matrix_add_special_token=False
+):
     '''
     use sequence to predict protein embedding matrix or vector(bos)
     :param sample: [protein_id, protein_sequence]
@@ -364,9 +385,18 @@ def predict_embedding(llm_dirpath, sample, trunc_type, embedding_type, repr_laye
         # print("device:", device)
 
     # print("llm embedding device: ", device)
-    emb, processed_seq_len = get_embedding(lucaone_global_args_info, lucaone_global_model_config, lucaone_global_tokenizer, lucaone_global_model, processed_seq, seq_type, device)
+    emb, processed_seq_len = get_embedding(
+        lucaone_global_args_info,
+        lucaone_global_model_config,
+        lucaone_global_tokenizer,
+        lucaone_global_model,
+        processed_seq,
+        seq_type,
+        device
+    )
     if emb is None:
         return None, None
+
     embeddings = {}
     prepend_len = int(lucaone_global_tokenizer.prepend_bos)
     append_len = int(lucaone_global_tokenizer.append_eos)
@@ -401,7 +431,16 @@ def predict_embedding(llm_dirpath, sample, trunc_type, embedding_type, repr_laye
         return None, None
 
 
-def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init_emb, model_args, embedding_type):
+def complete_embedding_matrix(
+        seq_id,
+        seq_type,
+        seq,
+        truncation_seq_length,
+        init_emb,
+        model_args,
+        embedding_type,
+        use_cpu=False
+):
     if init_emb is not None and model_args.embedding_complete and ("representations" in embedding_type or "matrix" in embedding_type):
         ori_seq_len = len(seq)
         # 每次能处理这么长度
@@ -421,8 +460,12 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
         append_emb = None
         if model_args.embedding_complete_seg_overlap:
             sliding_window = init_cur_segment_len // 2
-            print("Embedding Complete Seg Overlap: %r, ori seq len: %d, segment len: %d, init sliding windown: %d" % (model_args.embedding_complete_seg_overlap,
-                                                                                                                      ori_seq_len, init_cur_segment_len, sliding_window))
+            print("Embedding Complete Seg Overlap: %r, ori seq len: %d, segment len: %d, init sliding windown: %d" % (
+                model_args.embedding_complete_seg_overlap,
+                ori_seq_len,
+                init_cur_segment_len,
+                sliding_window
+            ))
             while True:
                 print("updated window: %d" % sliding_window)
                 try:
@@ -435,15 +478,16 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                             last_end = min(pos_idx + sliding_window, ori_seq_len)
                             seg_seq = seq[pos_idx - sliding_window:last_end]
                             print("segment idx: %d, seg seq len: %d" % (seg_idx, len(seg_seq)))
-                            seg_emb, seg_processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                                               [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
-                                                                               model_args.trunc_type,
-                                                                               embedding_type,
-                                                                               repr_layers=[-1],
-                                                                               truncation_seq_length=truncation_seq_length,
-                                                                               device=model_args.device,
-                                                                               matrix_add_special_token=False
-                                                                               )
+                            seg_emb, seg_processed_seq_len = predict_embedding(
+                                lucaone_global_model_dirpath,
+                                [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
+                                model_args.trunc_type,
+                                embedding_type,
+                                repr_layers=[-1],
+                                truncation_seq_length=truncation_seq_length,
+                                device=model_args.device if not use_cpu else torch.device("cpu"),
+                                matrix_add_special_token=False
+                            )
                             # 有seq overlap 所以要截取
                             if append_emb is None:
                                 append_emb = seg_emb[sliding_window:]
@@ -453,15 +497,16 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                             seg_idx += 1
                             remain = ori_seq_len - last_end
                             seg_seq = seq[ori_seq_len - 2 * sliding_window:ori_seq_len]
-                            seg_emb, seg_processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                                               [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
-                                                                               model_args.trunc_type,
-                                                                               embedding_type,
-                                                                               repr_layers=[-1],
-                                                                               truncation_seq_length=truncation_seq_length,
-                                                                               device=model_args.device,
-                                                                               matrix_add_special_token=False
-                                                                               )
+                            seg_emb, seg_processed_seq_len = predict_embedding(
+                                lucaone_global_model_dirpath,
+                                [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
+                                model_args.trunc_type,
+                                embedding_type,
+                                repr_layers=[-1],
+                                truncation_seq_length=truncation_seq_length,
+                                device=model_args.device if not use_cpu else torch.device("cpu"),
+                                matrix_add_special_token=False
+                            )
                             # 有seq overlap 所以要截取
                             if append_emb is None:
                                 append_emb = seg_emb[-remain:]
@@ -474,15 +519,16 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                             seg_idx += 1
                             last_start = min(pos_idx - sliding_window, -ori_seq_len)
                             seg_seq = seq[last_start: pos_idx + sliding_window]
-                            seg_emb, seg_processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                                               [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
-                                                                               model_args.trunc_type,
-                                                                               embedding_type,
-                                                                               repr_layers=[-1],
-                                                                               truncation_seq_length=truncation_seq_length,
-                                                                               device=model_args.device,
-                                                                               matrix_add_special_token=False
-                                                                               )
+                            seg_emb, seg_processed_seq_len = predict_embedding(
+                                lucaone_global_model_dirpath,
+                                [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
+                                model_args.trunc_type,
+                                embedding_type,
+                                repr_layers=[-1],
+                                truncation_seq_length=truncation_seq_length,
+                                device=model_args.device if not use_cpu else torch.device("cpu"),
+                                matrix_add_special_token=False
+                            )
                             # 有seq overlap 所以要截取
                             if append_emb is None:
                                 append_emb = seg_emb[:sliding_window]
@@ -492,15 +538,16 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                             seg_idx += 1
                             remain = last_start - ori_seq_len
                             seg_seq = seq[-ori_seq_len:-ori_seq_len + 2 * sliding_window]
-                            seg_emb, seg_processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                                               [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
-                                                                               model_args.trunc_type,
-                                                                               embedding_type,
-                                                                               repr_layers=[-1],
-                                                                               truncation_seq_length=truncation_seq_length,
-                                                                               device=model_args.device,
-                                                                               matrix_add_special_token=False
-                                                                               )
+                            seg_emb, seg_processed_seq_len = predict_embedding(
+                                lucaone_global_model_dirpath,
+                                [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
+                                model_args.trunc_type,
+                                embedding_type,
+                                repr_layers=[-1],
+                                truncation_seq_length=truncation_seq_length,
+                                device=model_args.device if not use_cpu else torch.device("cpu"),
+                                matrix_add_special_token=False
+                            )
                             # 有seq overlap 所以要截取
                             if append_emb is None:
                                 append_emb = seg_emb[:remain]
@@ -525,15 +572,16 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                         seg_seq = seq[begin_seq_idx + seg_idx * cur_segment_len: begin_seq_idx + (seg_idx + 1) * cur_segment_len]
                         # print("segment idx: %d, seg_seq(%d): %s" % (seg_idx, len(seg_seq), seg_seq))
                         print("segment idx: %d, seg seq len: %d" % (seg_idx, len(seg_seq)))
-                        seg_emb, seg_processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                                           [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
-                                                                           model_args.trunc_type,
-                                                                           embedding_type,
-                                                                           repr_layers=[-1],
-                                                                           truncation_seq_length=truncation_seq_length,
-                                                                           device=model_args.device,
-                                                                           matrix_add_special_token=False
-                                                                           )
+                        seg_emb, seg_processed_seq_len = predict_embedding(
+                            lucaone_global_model_dirpath,
+                            [seq_id + "_seg_%d" % seg_idx, seq_type, seg_seq],
+                            model_args.trunc_type,
+                            embedding_type,
+                            repr_layers=[-1],
+                            truncation_seq_length=truncation_seq_length,
+                            device=model_args.device if not use_cpu else torch.device("cpu"),
+                            matrix_add_special_token=False
+                        )
 
                         if append_emb is None:
                             append_emb = seg_emb
@@ -549,15 +597,16 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                         really_len = (ori_seq_len - (segment_num - 1) * cur_segment_len)
                         # print("last seg seq: %s" % last_seg_seq)
                         print("last seg seq len: %d, really len: %d" % (len(last_seg_seq), really_len))
-                        last_seg_emb, last_seg_processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                                                     [seq_id + "_seg_%d" % (segment_num - 1), seq_type, last_seg_seq],
-                                                                                     model_args.trunc_type,
-                                                                                     embedding_type,
-                                                                                     repr_layers=[-1],
-                                                                                     truncation_seq_length=truncation_seq_length,
-                                                                                     device=model_args.device,
-                                                                                     matrix_add_special_token=False
-                                                                                     )
+                        last_seg_emb, last_seg_processed_seq_len = predict_embedding(
+                            lucaone_global_model_dirpath,
+                            [seq_id + "_seg_%d" % (segment_num - 1), seq_type, last_seg_seq],
+                            model_args.trunc_type,
+                            embedding_type,
+                            repr_layers=[-1],
+                            truncation_seq_length=truncation_seq_length,
+                            device=model_args.device if not use_cpu else torch.device("cpu"),
+                            matrix_add_special_token=False
+                        )
                         last_seg_emb = last_seg_emb[-really_len:, :]
                         append_emb = np.concatenate((append_emb, last_seg_emb), axis=0)
                     else:
@@ -566,22 +615,28 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
                         really_len = (ori_seq_len - (segment_num - 1) * cur_segment_len)
                         # print("first seg seq: %s" % first_seg_seq)
                         print("first seg seq len: %d, really len: %d" % (len(first_seg_seq), really_len))
-                        first_seg_emb, first_seg_processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                                                       [seq_id + "_seg_0", seq_type, first_seg_seq],
-                                                                                       model_args.trunc_type,
-                                                                                       embedding_type,
-                                                                                       repr_layers=[-1],
-                                                                                       truncation_seq_length=truncation_seq_length,
-                                                                                       device=model_args.device,
-                                                                                       matrix_add_special_token=False
-                                                                                       )
+                        first_seg_emb, first_seg_processed_seq_len = predict_embedding(
+                            lucaone_global_model_dirpath,
+                            [seq_id + "_seg_0", seq_type, first_seg_seq],
+                            model_args.trunc_type,
+                            embedding_type,
+                            repr_layers=[-1],
+                            truncation_seq_length=truncation_seq_length,
+                            device=model_args.device if not use_cpu else torch.device("cpu"),
+                            matrix_add_special_token=False
+                        )
                         first_seg_emb = first_seg_emb[:really_len, :]
                         append_emb = np.concatenate((first_seg_emb, append_emb), axis=0)
                 except Exception as e:
                     append_emb = None
                 if append_emb is not None:
                     break
-                print("fail, change segment len: %d -> %d, change seg num: %d -> %d" % (cur_segment_len, int(cur_segment_len * 0.95), segment_num, int((ori_seq_len + cur_segment_len - 1) / cur_segment_len)))
+                print("fail, change segment len: %d -> %d, change seg num: %d -> %d" % (
+                    cur_segment_len,
+                    int(cur_segment_len * 0.95),
+                    segment_num,
+                    int((ori_seq_len + cur_segment_len - 1) / cur_segment_len)
+                ))
                 cur_segment_len = int(cur_segment_len * 0.95)
                 segment_num = int((ori_seq_len + cur_segment_len - 1) / cur_segment_len)
 
@@ -600,19 +655,21 @@ def complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, init
 
 
 def main(model_args):
+    global lucaone_global_log_filepath, lucaone_global_model_dirpath, lucaone_global_args_info, \
+        lucaone_global_model_config, lucaone_global_model, lucaone_global_tokenizer
     print("*" * 20 + "Args:" + "*" * 20)
     print(model_args)
     print("*" * 50)
     if model_args.llm_dir is None:
         model_args.llm_dir = "../models"
     download_trained_checkpoint_lucaone(llm_dir=os.path.join(model_args.llm_dir, "llm/"), llm_step=model_args.llm_step)
-    global lucaone_global_log_filepath, lucaone_global_model_dirpath, lucaone_global_args_info, \
-        lucaone_global_model_config, lucaone_global_model, lucaone_global_tokenizer
+
     cur_log_filepath = "%s/llm/logs/lucagplm/%s/%s/%s/%s/logs.txt" % (
         model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
         model_args.llm_type, model_args.llm_time_str
     )
-    print("cur_log_filepath: %s" % cur_log_filepath)
+    print("log_filepath: %s" % cur_log_filepath)
+
     cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-%d" % (
         model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
         model_args.llm_type, model_args.llm_time_str, model_args.llm_step
@@ -622,7 +679,8 @@ def main(model_args):
             model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
             model_args.llm_type, model_args.llm_time_str, model_args.llm_step
         )
-    print("cur_model_dirpath: %s" % cur_model_dirpath)
+    print("model_dirpath: %s" % cur_model_dirpath)
+
     if not os.path.exists(cur_model_dirpath):
         cur_model_dirpath = "%s/models/lucagplm/%s/%s/%s/%s/checkpoint-step%d" % (
             model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
@@ -648,13 +706,12 @@ def main(model_args):
         print("gpu_id: ", gpu_id)
     model_args.device = torch.device("cuda:%d" % gpu_id if gpu_id > -1 else "cpu")
     # model.to(model_args.device)
-    assert model_args.input_file is not None or model_args.seq is not None
+    assert (model_args.input_file is not None and os.path.exists(model_args.input_file)) or model_args.seq is not None
     print("input seq type: %s" % model_args.seq_type)
     print("args device: %s" % model_args.device)
     embedding_type = model_args.embedding_type
     save_path = model_args.save_path
     seq_type = model_args.seq_type
-    # emb_save_path = os.path.join(save_path, model_args.llm_version, model_args.llm_type, str(model_args.llm_step))
     emb_save_path = save_path
     print("emb save dir: %s" % emb_save_path)
     if seq_type not in ["gene", "prot"]:
@@ -667,6 +724,8 @@ def main(model_args):
         file_reader = fasta_reader
         if model_args.input_file.endswith(".csv"):
             file_reader = csv_reader
+        elif model_args.input_file.endswith(".tsv"):
+            file_reader = tsv_reader
 
         for row in file_reader(model_args.input_file):
             if model_args.id_idx is None or model_args.seq_idx is None:
@@ -676,19 +735,6 @@ def main(model_args):
                     seq_id, seq = row[0].strip(), row[1].upper()
             else:
                 seq_id, seq = row[model_args.id_idx].strip(), row[model_args.seq_idx].upper()
-            '''
-            if " " in seq_id:
-                ss = seq_id.split(" ")
-                if len(ss[0]) > 3:
-                    emb_filename = ss[0] + ".pt"
-                else:
-                    emb_filename = seq_id.replace(" ", "") + ".pt"
-            else:
-                emb_filename = seq_id + ".pt"
-            if "/" in emb_filename:
-                emb_filename = emb_filename.replace("/", "_")
-            emb_filename = embedding_type + "_" + emb_filename
-            '''
             if not seq_type_is_match_seq(seq_type, seq):
                 print("Error! the input seq(seq_id=%s) not match its seq_type=%s: %s" % (seq_id, seq_type, seq))
                 sys.exit(-1)
@@ -701,47 +747,106 @@ def main(model_args):
                     truncation_seq_length = ori_seq_len
                 else:
                     truncation_seq_length = min(ori_seq_len, truncation_seq_length)
-                emb, processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                           [seq_id, seq_type, seq],
-                                                           model_args.trunc_type,
-                                                           embedding_type,
-                                                           repr_layers=[-1],
-                                                           truncation_seq_length=truncation_seq_length,
-                                                           device=model_args.device,
-                                                           matrix_add_special_token=model_args.matrix_add_special_token)
-                while emb is None:
-                    print("%s embedding error, max_len from %d truncate to %d" % (seq_id, truncation_seq_length, int(truncation_seq_length * 0.95)))
+                while True:
+                    # 设置了一次性推理长度
+                    if model_args.embedding_fixed_len_a_time and model_args.embedding_fixed_len_a_time > 0:
+                        emb, processed_seq_len = predict_embedding(
+                            lucaone_global_model_dirpath,
+                            [seq_id, seq_type, seq],
+                            model_args.trunc_type,
+                            embedding_type,
+                            repr_layers=[-1],
+                            truncation_seq_length=model_args.embedding_fixed_len_a_time,
+                            device=model_args.device,
+                            matrix_add_special_token=model_args.matrix_add_special_token
+                        )
+                        # 如果指定的设备运行失败，则使用CPU
+                        use_cpu = False
+                        if emb is None:
+                            emb, processed_seq_len = predict_embedding(
+                                lucaone_global_model_dirpath,
+                                [seq_id, seq_type, seq],
+                                model_args.trunc_type,
+                                embedding_type,
+                                repr_layers=[-1],
+                                truncation_seq_length=model_args.embedding_fixed_len_a_time,
+                                device=torch.device("cpu"),
+                                matrix_add_special_token=model_args.matrix_add_special_token
+                            )
+                            use_cpu = True
+                        if emb is not None:
+                            emb = complete_embedding_matrix(
+                                seq_id,
+                                seq_type,
+                                seq,
+                                model_args.embedding_fixed_len_a_time,
+                                emb,
+                                model_args,
+                                embedding_type,
+                                use_cpu=use_cpu
+                            )
+                        print("use_cpu: %r" % use_cpu)
+                    else:
+                        emb, processed_seq_len = predict_embedding(
+                            lucaone_global_model_dirpath,
+                            [seq_id, seq_type, seq],
+                            model_args.trunc_type,
+                            embedding_type,
+                            repr_layers=[-1],
+                            truncation_seq_length=truncation_seq_length,
+                            device=model_args.device,
+                            matrix_add_special_token=model_args.matrix_add_special_token
+                        )
+                        # embedding全
+                        if emb is not None:
+                            emb = complete_embedding_matrix(
+                                seq_id,
+                                seq_type,
+                                seq,
+                                truncation_seq_length,
+                                emb,
+                                model_args,
+                                embedding_type,
+                                use_cpu=False
+                            )
+                    if emb is not None:
+                        # print("seq_len: %d" % len(seq))
+                        # print("emb shape:", embedding_info.shape)
+                        torch.save(emb, embedding_filepath)
+                        break
+                    print("%s embedding error, max_len from %d truncate to %d" % (
+                        seq_id,
+                        truncation_seq_length,
+                        int(truncation_seq_length * 0.95)
+                    ))
                     truncation_seq_length = int(truncation_seq_length * 0.95)
-                    emb, processed_seq_len = predict_embedding(lucaone_global_model_dirpath,
-                                                               [seq_id, seq_type, seq],
-                                                               model_args.trunc_type,
-                                                               embedding_type,
-                                                               repr_layers=[-1],
-                                                               truncation_seq_length=truncation_seq_length,
-                                                               device=model_args.device,
-                                                               matrix_add_special_token=model_args.matrix_add_special_token)
-                    emb = complete_embedding_matrix(seq_id, seq_type, seq, truncation_seq_length, emb, model_args, embedding_type)
-                # print("seq_len: %d" % len(seq))
-                # print("emb shape:", embedding_info.shape)
-                torch.save(emb, embedding_filepath)
             else:
                 print("%s exists." % embedding_filepath)
             done += 1
             if done % 1000 == 0:
                 print("embedding done: %d" % done)
         print("embedding over, done: %d" % done)
-    elif model_args.seq:
+    elif model_args.seq and model_args.seq_type:
+        if model_args.seq_id is None:
+            model_args.seq_id = "Unknown"
         print("input seq length: %d" % len(model_args.seq))
         if not seq_type_is_match_seq(model_args.seq_type, model_args.seq):
             print("Error! the input seq(seq_id=%s) not match its seq_type=%s: %s" % (model_args.seq_id, model_args.seq_type, model_args.seq))
             sys.exit(-1)
-        emb, processed_seq_len = get_embedding(lucaone_global_args_info,
-                                               lucaone_global_model_config,
-                                               lucaone_global_tokenizer,
-                                               lucaone_global_model,
-                                               model_args.seq,
-                                               model_args.seq_type,
-                                               model_args.device)
+        use_cpu = False
+        while True:
+            emb, processed_seq_len = get_embedding(
+                lucaone_global_args_info,
+                lucaone_global_model_config,
+                lucaone_global_tokenizer,
+                lucaone_global_model,
+                model_args.seq,
+                model_args.seq_type,
+                model_args.device if not use_cpu else torch.device("cpu")
+            )
+            if emb is not None:
+                break
+            use_cpu = True
         print("processed seq length: %d" % processed_seq_len)
         # losses, outputs, hidden_states, attentions, cross_attentions, lucaone_global_attentions,
         if isinstance(emb, list):
@@ -817,7 +922,3 @@ def main(model_args):
                     cur_attention = attention[0, layer_idx - 1, head_idx - 1, :, :]
                     print(cur_attention)
                     print(torch.nonzero(cur_attention))
-
-
-
-
