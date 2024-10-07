@@ -1,7 +1,8 @@
 # LucaOne APP   
 
 ## TimeLine
-* 2024/08/01: add `checkpoint=17600000`, location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/models/lucagplm/v2.0/token_level,span_level,seq_level,structure_level/lucaone_gplm/20231125113045/checkpoint-step17600000/'>checkpoint-step17600000</a>
+* 2024/10/01: optimized embedding inference code: `src/llm/lucagplm/get_embedding.py`    
+* 2024/08/01: add `checkpoint=17600000`, location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/models/lucagplm/v2.0/token_level,span_level,seq_level,structure_level/lucaone_gplm/20231125113045/checkpoint-step17600000/'>checkpoint-step17600000</a>     
 This project will download the checkpoint automatically according to the value of parameter **--llm_step**.          
 
 
@@ -82,6 +83,7 @@ Scripts in `algorithms/`
     * save_path: the saving dir for storing the embedding file.     
     * embedding_complete: When `embedding_complete` is set, `truncation_seq_length` is invalid. If the GPU memory is not enough to infer the entire sequence at once, it is used to determine whether to perform segmented completion (if this parameter is not used, 0.95*len is truncated each time until the CPU can process the length).       
     * embedding_complete_seg_overlap: When `embedding_complete` is set, whether the method of overlap is applicable to segmentation(overlap sliding window)
+    * embedding_fixed_len_a_time: When the input sequence is too long for your GPU to complete the inference at once, you can specify the length of the inference at once(default: None)     
     * gpu: the gpu id to use(-1 for cpu).
 
 3) Optional parameters:    
