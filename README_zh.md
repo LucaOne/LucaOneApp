@@ -84,7 +84,7 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 * save_path: embedding文件保存路径     
 * embedding_complete: 当 `embedding_complete`被设置的时候, `truncation_seq_length`是无效的. 如果显存不够一次性推理整个序列，是否进行分段补全（如果不使用该参数，则每次截断0.95*len直到显卡可容纳的长度  
 * embedding_complete_seg_overlap: 当`embedding_complete`被设置的时候, 使用对序列分段embedding的分段是否重叠(overlap sliding window)    
-* embedding_fixed_len_a_time: When the input sequence is too long for your GPU to complete the inference at once, you can specify the length of the inference at once(default: None)       
+* embedding_fixed_len_a_time: When the input sequence is too long for your GPU to complete the inference at once, you can specify the fixed length of the inference at once(default: None)       
 * gpu: 使用哪一个gpu id       
 
 #### 3) 可选参数:     
