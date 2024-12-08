@@ -63,6 +63,9 @@ def get_args():
                         help="the llm truncation seq length(not contain [CLS] and [SEP].")
     parser.add_argument("--matrix_add_special_token", action="store_true",
                         help="whether to add special token embedding vector in seq representation matrix")
+    parser.add_argument("--embedding_complete",
+                        action="store_true",
+                        help="when the seq len > inference_max_len, then the embedding matrix is completed by segment")
 
     parser.add_argument('--gpu', type=int, default=-1,
                         help="the gpu id to use.")
