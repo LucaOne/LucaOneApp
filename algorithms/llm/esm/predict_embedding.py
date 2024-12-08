@@ -473,8 +473,9 @@ def get_args():
     parser.add_argument("--save_path", type=str, default=None,
                         help="embedding file save dir path")
 
-    parser.add_argument("--llm_type", type=str, default="esm2",
-                        choices=["esm2", "esm", "ESM"],
+    # for trained llm
+    parser.add_argument("--llm_type", type=str, default="ESM",
+                        choices=["esm", "ESM", "esm2"],
                         help="llm type")
     parser.add_argument("--llm_version", type=str, default="3B",
                         choices=["15B", "3B", "650M", "150M"],
