@@ -83,11 +83,11 @@ def get_args():
 
 
 if __name__ == "__main__":
-    args = get_args()
-    args_dict = {}
-    for attr, value in sorted(args.__dict__.items()):
-        args_dict[attr] = value
+    run_args = get_args()
+    run_args_dict = {}
+    for attr, value in sorted(run_args.__dict__.items()):
+        run_args_dict[attr] = value
     print("-" * 20 + "Input Args:" + "-" * 20)
-    print(args_dict)
+    print(run_args_dict)
     print("-" * 50)
-    main(args)
+    main(run_args)
