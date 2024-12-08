@@ -35,13 +35,13 @@ def get_args():
                         help="the seq id")
     parser.add_argument("--seq", type=str, default=None,
                         help="when to input a seq")
-    parser.add_argument("--seq_type", type=str, default="prot",
-                        choices=["prot"],
+    parser.add_argument("--seq_type", type=str, default="gene",
+                        choices=["gene"],
                         help="the input seq type")
 
     # for many
     parser.add_argument("--input_file", type=str, default=None,
-                        help="the input file（format: fasta or csv or tsv)")
+                        help="the input filepath(.fasta or .csv or .tsv)")
 
     # for input csv
     parser.add_argument("--id_idx", type=int, default=None,
