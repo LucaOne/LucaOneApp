@@ -34,7 +34,7 @@ def get_args():
 
     # for many seqs
     parser.add_argument("--input_file", type=str, default=None,
-                        help="the input filepath(.fasta or .csv)")
+                        help="the input filepath(.fasta or .csv or .tsv)")
     parser.add_argument("--id_idx", type=int, default=None,
                         help="id col idx(0 start)")
     parser.add_argument("--seq_idx", type=int, default=None,
@@ -83,11 +83,11 @@ def get_args():
 
 
 if __name__ == "__main__":
-    args = get_args()
-    args_dict = {}
-    for attr, value in sorted(args.__dict__.items()):
-        args_dict[attr] = value
+    run_args = get_args()
+    run_args_dict = {}
+    for attr, value in sorted(run_args.__dict__.items()):
+        run_args_dict[attr] = value
     print("-" * 20 + "Input Args:" + "-" * 20)
-    print(args_dict)
+    print(run_args_dict)
     print("-" * 50)
-    main(args)
+    main(run_args)
