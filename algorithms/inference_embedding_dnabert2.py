@@ -91,8 +91,7 @@ def main(model_args):
     emb_save_path = model_args.save_path
     print("emb save dir: %s" % emb_save_path)
     if seq_type not in ["gene"]:
-        print("Error! arg: --seq_type=%s is not 'gene'" % seq_type)
-        sys.exit(-1)
+        raise Exception("Error! arg: --seq_type=%s is not 'gene'" % seq_type)
 
     if not os.path.exists(emb_save_path):
         os.makedirs(emb_save_path)
