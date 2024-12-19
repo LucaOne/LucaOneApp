@@ -373,8 +373,10 @@ def seq_type_is_match_seq(seq_type, seq):
         if ch in {"A", "T", "C", "G", "U", "N"}:
             atcgu_num += 1
 
+    if len(seq) > 0 and seq[0] == "M" and seq_type == "prot":
+        return True
     is_gene = False
-    if total_num == atcgu_num or atcgu_num >= 0.8 * total_num:
+    if total_num == atcgu_num or atcgu_num >= 0.9 * total_num:
         is_gene = True
 
     if is_gene and seq_type == "gene":
@@ -574,15 +576,15 @@ def writer_info_tb(tb_writer, logs, global_step, prefix=None):
     :param prefix:
     :return:
     '''
+    if prefix is None:
+        prefix = ""
+    elif prefix != "":
+        prefix = prefix + "_"
     for key, value in logs.items():
         if isinstance(value, dict):
-            '''
-            for key1, value1 in value.items():
-                tb_writer.add_scalar(key + "_" + key1, value1, global_step)
-            '''
-            writer_info_tb(tb_writer, value, global_step, prefix=key)
+            writer_info_tb(tb_writer, value, global_step, prefix=prefix + key)
         elif not math.isnan(value) and not math.isinf(value):
-            tb_writer.add_scalar(prefix + "_" + key if prefix else key, value, global_step)
+            tb_writer.add_scalar(prefix + key, value, global_step)
         else:
             print("writer_info_tb NaN or Inf, Key-Value: %s=%s" % (key, value))
 

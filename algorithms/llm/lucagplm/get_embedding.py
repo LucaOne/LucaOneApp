@@ -657,9 +657,26 @@ def main(model_args):
     print("*" * 20 + "Args:" + "*" * 20)
     print(model_args)
     print("*" * 50)
-    if model_args.llm_dir is None:
+    if not hasattr(model_args, "llm_dir") or model_args.llm_dir is None:
         model_args.llm_dir = "../models"
-    download_trained_checkpoint_lucaone(llm_dir=os.path.join(model_args.llm_dir, "llm/"), llm_step=model_args.llm_step)
+    if not hasattr(model_args, "llm_type"):
+        model_args.llm_type = "lucaone_gplm"
+    if not hasattr(model_args, "llm_step"):
+        model_args.llm_step = "5600000"
+    if not hasattr(model_args, "llm_time_str"):
+        model_args.llm_time_str = "20231125113045"
+    if not hasattr(model_args, "llm_version"):
+        model_args.llm_version = "v2.0"
+    if not hasattr(model_args, "llm_task_level"):
+        model_args.llm_task_level = "token_level,span_level,seq_level,structure_level"
+    download_trained_checkpoint_lucaone(
+        llm_dir=os.path.join(model_args.llm_dir, "llm/"),
+        llm_type=model_args.llm_type,
+        llm_time_str=model_args.llm_time_str,
+        llm_version=model_args.llm_version,
+        llm_task_level=model_args.llm_task_level,
+        llm_step=model_args.llm_step
+    )
 
     cur_log_filepath = "%s/llm/logs/lucagplm/%s/%s/%s/%s/logs.txt" % (
         model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
@@ -713,8 +730,8 @@ def main(model_args):
     emb_save_path = save_path
     print("emb save dir: %s" % emb_save_path)
     if seq_type not in ["gene", "prot"]:
-        print("Error! arg: --seq_type=%s is not gene or prot" % seq_type)
-        sys.exit(-1)
+        raise Exception("Error! arg: --seq_type=%s is not gene or prot" % seq_type)
+
     if not os.path.exists(emb_save_path):
         os.makedirs(emb_save_path)
     if model_args.input_file:
@@ -734,8 +751,8 @@ def main(model_args):
             else:
                 seq_id, seq = row[model_args.id_idx].strip(), row[model_args.seq_idx].upper()
             if not seq_type_is_match_seq(seq_type, seq):
-                print("Error! the input seq(seq_id=%s) not match its seq_type=%s: %s" % (seq_id, seq_type, seq))
-                sys.exit(-1)
+                raise Exception("Error! the input seq(seq_id=%s) not match its seq_type=%s: %s" % (seq_id, seq_type, seq))
+
             emb_filename = calc_emb_filename_by_seq_id(seq_id=seq_id, embedding_type=embedding_type)
             embedding_filepath = os.path.join(emb_save_path, emb_filename)
             if not os.path.exists(embedding_filepath):
@@ -845,8 +862,8 @@ def main(model_args):
             model_args.seq_id = "Unknown"
         print("input seq length: %d" % len(model_args.seq))
         if not seq_type_is_match_seq(model_args.seq_type, model_args.seq):
-            print("Error! the input seq(seq_id=%s) not match its seq_type=%s: %s" % (model_args.seq_id, model_args.seq_type, model_args.seq))
-            sys.exit(-1)
+            raise Exception("Error! the input seq(seq_id=%s) not match its seq_type=%s: %s" % (model_args.seq_id, model_args.seq_type, model_args.seq))
+
         use_cpu = False
         while True:
             emb, processed_seq_len = get_embedding(

@@ -531,8 +531,7 @@ def main(args):
     emb_save_path = args.save_path
     print("emb save dir: %s" % emb_save_path)
     if seq_type not in ["prot"]:
-        print("Error! arg: --seq_type=%s is not 'prot'" % seq_type)
-        sys.exit(-1)
+        raise Exception("Error! arg: --seq_type=%s is not 'prot'" % seq_type)
 
     if not os.path.exists(emb_save_path):
         os.makedirs(emb_save_path)
