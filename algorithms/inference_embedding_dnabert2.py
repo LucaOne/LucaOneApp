@@ -10,10 +10,10 @@
 @file: inference_embedding_dnabert2.py
 @desc: inference embedding of DNABert2
 '''
-
 import os
 import sys
 import torch
+import numpy as np
 import argparse
 sys.path.append(".")
 sys.path.append("..")
@@ -56,6 +56,12 @@ def get_args():
     parser.add_argument("--embedding_type", type=str, default="matrix",
                         choices=["matrix", "vector"],
                         help="the llm embedding type.")
+    parser.add_argument("--vector_type",
+                        type=str,
+                        default="mean",
+                        choices=["mean", "max", "cls"],
+                        help="the llm vector embedding type.")
+
     parser.add_argument("--trunc_type", type=str, default="right",
                         choices=["left", "right"],
                         help="llm trunc type.")
@@ -87,6 +93,11 @@ def main(model_args):
     print("input seq type: %s" % model_args.seq_type)
     print("args device: %s" % model_args.device)
     embedding_type = model_args.embedding_type
+    vector_type = model_args.vector_type
+    if embedding_type == "vector" and vector_type == "cls":
+        matrix_add_special_token = True
+    else:
+        matrix_add_special_token = model_args.matrix_add_special_token
     seq_type = model_args.seq_type
     emb_save_path = model_args.save_path
     print("emb save dir: %s" % emb_save_path)
@@ -126,7 +137,7 @@ def main(model_args):
                     truncation_seq_length=truncation_seq_length,
                     device=model_args.device,
                     version="dnabert2",
-                    matrix_add_special_token=model_args.matrix_add_special_token
+                    matrix_add_special_token=matrix_add_special_token
                 )
                 while emb is None:
                     print("%s embedding error, max_len from %d truncate to %d" % (
@@ -143,10 +154,23 @@ def main(model_args):
                         truncation_seq_length=truncation_seq_length,
                         device=model_args.device,
                         version="dnabert2",
-                        matrix_add_special_token=model_args.matrix_add_special_token
+                        matrix_add_special_token=matrix_add_special_token
                     )
                 # print("seq_len: %d" % len(seq))
                 # print("emb shape:", embedding_info.shape)
+                if embedding_type == "vector":
+                    if vector_type == "cls":
+                        emb = emb[0, :]
+                    elif vector_type == "max":
+                        if matrix_add_special_token:
+                            emb = np.max(emb[1:-1, :], axis=0)
+                        else:
+                            emb = np.max(emb, axis=0)
+                    else:
+                        if matrix_add_special_token:
+                            emb = np.mean(emb[1:-1, :], axis=0)
+                        else:
+                            emb = np.mean(emb, axis=0)
                 torch.save(emb, embedding_filepath)
             else:
                 print("%s exists." % embedding_filepath)
@@ -164,7 +188,7 @@ def main(model_args):
             truncation_seq_length=model_args.truncation_seq_length,
             device=model_args.device,
             version="dnabert2",
-            matrix_add_special_token=model_args.matrix_add_special_token
+            matrix_add_special_token=matrix_add_special_token
         )
         print("done seq length: %d" % processed_seq_len)
         print(emb)
