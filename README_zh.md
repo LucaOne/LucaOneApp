@@ -69,8 +69,8 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 如果序列长度大于这个长度，基于这个长度进行分片embedding，最后进行合并。否则根据序列的实际长度；    
 5）如果不设置`--embedding_complete`，那么根据设置的`--truncation_seq_length`的值对序列进行截断embedding；  
 6）对于蛋白，因为绝大部分蛋白长度在1000以下，因此超长蛋白序列不会很多，因此可以将`--embedding_fixed_len_a_time`设置长一点或者`不设置`；    
-7）对于DNA，因为很多任务的DNA序列很长，那么请设置`--embedding_fixed_len_a_time`。    
-超长序列数据量越多，该值设置越小一点，比如在A100下设置为`2800`，否则设置大一点，如果GPU根据这个长度embedding失败，则会调用CPU。如果数据集数不大，则时间不会很久；          
+7）对于DNA，因为很多任务的DNA序列很长，那么请设置`--embedding_fixed_len_a_time`。        
+如果数据集中超长序列数据量越多，该值设置越小一点，比如在A100下设置为`2800`，否则设置大一点，如果GPU根据这个长度embedding失败，则会调用CPU。如果数据集数不大，则时间不会很久；          
 8）对于RNA，因为大部分RNA不会很长，因此与蛋白处理方式一致，因此可以将`--embedding_fixed_len_a_time`设置长一点或者不设置；
 
 
@@ -85,7 +85,7 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 * llm_version: 模型版本，默认v2.0       
 * llm_task_level: 模型预训练的任务，默认token_level,span_level,seq_level,structure_level        
 * llm_time_str: 模型开始训练的时间字符串，默认为20231125113045       
-* llm_step: 当前使用的checkpoint step，默认为5600000，后面会随着训练进行更新          
+* llm_step: 当前使用的checkpoint step，默认为5600000，后面会随着训练进行更新, choices=[5600000, 17600000]          
 
 #### 2) 重要参数: 
 * embedding_type: matrix/vector, 分别为整个序列的矩阵或者[CLS]向量      

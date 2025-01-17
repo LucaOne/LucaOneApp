@@ -643,7 +643,10 @@ def complete_embedding_matrix(
             complete_emb = np.concatenate((first_emb, append_emb), axis=0)
         else:
             complete_emb = np.concatenate((append_emb, first_emb), axis=0)
-        print("seq len: %d, seq embedding matrix len: %d" % (ori_seq_len, complete_emb.shape[0] + (2 if matrix_add_special_token else 0)))
+        print("seq len: %d, seq embedding matrix len: %d" % (
+            ori_seq_len,
+            complete_emb.shape[0] + (2 if matrix_add_special_token else 0)
+        ))
         print("-" * 50)
         assert complete_emb.shape[0] == ori_seq_len
         if matrix_add_special_token:
@@ -685,19 +688,19 @@ def main(model_args):
     )
     print("log_filepath: %s" % cur_log_filepath)
 
-    cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-%d" % (
+    cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-%s" % (
         model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
         model_args.llm_type, model_args.llm_time_str, model_args.llm_step
     )
     if not os.path.exists(cur_model_dirpath):
-        cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-step%d" % (
+        cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-step%s" % (
             model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
             model_args.llm_type, model_args.llm_time_str, model_args.llm_step
         )
     print("model_dirpath: %s" % cur_model_dirpath)
 
     if not os.path.exists(cur_model_dirpath):
-        cur_model_dirpath = "%s/models/lucagplm/%s/%s/%s/%s/checkpoint-step%d" % (
+        cur_model_dirpath = "%s/models/lucagplm/%s/%s/%s/%s/checkpoint-step%s" % (
             model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
             model_args.llm_type, model_args.llm_time_str, model_args.llm_step
         )
