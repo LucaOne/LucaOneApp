@@ -717,8 +717,8 @@ def main(model_args):
                 model_dirpath=lucaone_global_model_dirpath,
                 embedding_inference=True
             )
-    if model_args.gpu >= 0:
-        gpu_id = model_args.gpu
+    if model_args.gpu_id >= 0:
+        gpu_id = model_args.gpu_id
     else:
         # gpu_id = available_gpu_id()
         gpu_id = -1

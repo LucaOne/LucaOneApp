@@ -122,29 +122,7 @@ A sequence outputs one embedding file named with `seq_id`, so the `seq_id` must 
 2. The **sequence id** must be globally unique in the input file and cannot contain special characters (because the embedding file stored is named by the sequence id, e.g. `matrix_seq_1000.pt`).  
 
 ```shell
-# for protein
-cd ./algorithms/
-export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
-python inference_embedding_lucaone.py \
-    --llm_dir ../models  \
-    --llm_type lucaone_gplm \
-    --llm_version v2.0 \
-    --llm_task_level token_level,span_level,seq_level,structure_level \
-    --llm_time_str 20231125113045 \
-    --llm_step 5600000 \
-    --truncation_seq_length 100000 \
-    --trunc_type right \
-    --seq_type prot \
-    --input_file ../data/test_data/prot/test_prot.csv \
-    --id_idx 2 \
-    --seq_idx 3 \
-    --save_path ../embedding/lucaone/test_data/prot/test_prot \
-    --embedding_type matrix \
-    --matrix_add_special_token \
-    --embedding_complete \
-    --embedding_complete_seg_overlap \
-    --gpu 0   
- 
+
 # for DNA or RNA
 cd ./algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
@@ -166,19 +144,14 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu 0   
-```
+    --gpu_id 0   
 
-#### 2) the **fasta** file format of input   
 
-**Notice:**   
-1. The **sequence id** must be globally unique in the input file and cannot contain special characters (because the embedding file stored is named by the sequence id).
-```shell
 # for protein
 cd ./algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
-    --llm_dir ../models \
+    --llm_dir ../models  \
     --llm_type lucaone_gplm \
     --llm_version v2.0 \
     --llm_task_level token_level,span_level,seq_level,structure_level \
@@ -187,15 +160,21 @@ python inference_embedding_lucaone.py \
     --truncation_seq_length 100000 \
     --trunc_type right \
     --seq_type prot \
-    --input_file ../data/test_data/prot/test_prot.fasta \
+    --input_file ../data/test_data/prot/test_prot.csv \
+    --id_idx 2 \
+    --seq_idx 3 \
     --save_path ../embedding/lucaone/test_data/prot/test_prot \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu 0   
+    --gpu_id 0   
 ```
 
+#### 2) the **fasta** file format of input   
+
+**Notice:**   
+1. The **sequence id** must be globally unique in the input file and cannot contain special characters (because the embedding file stored is named by the sequence id).
 
 ```shell
 # for DNA or RNA
@@ -217,11 +196,123 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu 0   
+    --gpu_id 0   
 ```   
 
+```shell
+# for protein
+cd ./algorithms/
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
+python inference_embedding_lucaone.py \
+    --llm_dir ../models \
+    --llm_type lucaone_gplm \
+    --llm_version v2.0 \
+    --llm_task_level token_level,span_level,seq_level,structure_level \
+    --llm_time_str 20231125113045 \
+    --llm_step 5600000 \
+    --truncation_seq_length 100000 \
+    --trunc_type right \
+    --seq_type prot \
+    --input_file ../data/test_data/prot/test_prot.fasta \
+    --save_path ../embedding/lucaone/test_data/prot/test_prot \
+    --embedding_type matrix \
+    --matrix_add_special_token \
+    --embedding_complete \
+    --embedding_complete_seg_overlap \
+    --gpu_id 0   
+```
 
-## 5. Data and Code Availability
+## 5. Embedding using DNABert2 for Gene(DNA or RNA)            
+**Notice：** Need to switch the virtual environment
+
+### for DNABert2 Embedding
+activate deactivate    
+conda create -n lucaone_app_dnabert2 python=3.9.13    
+conda activate lucaone_app_dnabert2      
+pip install -r requirements_dnabert2.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+##### for `csv` format file as input
+```shell
+# for gene
+cd ./algorithms/
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
+python inference_embedding_dnabert2.py \
+    --truncation_seq_length 10240 \
+    --trunc_type right \
+    --seq_type gene \
+    --input_file ../data/test_data/prot/test_gene.csv \
+    --id_idx 0 \
+    --seq_idx 1 \
+    --save_path ../embedding/danbert2/test_data/prot/test_gene \
+    --embedding_type matrix \
+    --matrix_add_special_token \
+    --embedding_complete \
+    --gpu_id 0    
+```
+
+##### for `fasta` format file as input
+```shell
+# for gene
+cd ./algorithms/
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
+python inference_embedding_dnabert2.py \
+    --truncation_seq_length 10240 \
+    --trunc_type right \
+    --seq_type gene \
+    --input_file ../data/test_data/prot/test_gene.fasta \
+    --save_path ../embedding/danbert2/test_data/prot/test_gene \
+    --embedding_type matrix \
+    --matrix_add_special_token \
+    --embedding_complete \
+    --gpu_id 0   
+```
+
+## 6. Embedding using ESM2 for Prot      
+
+##### for `csv` format file as input    
+```shell
+# for protein
+cd ./algorithms/
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
+python inference_embedding_esm.py \
+    --llm_type esm2 \
+    --llm_version 3B \
+    --truncation_seq_length 4096 \
+    --trunc_type right \
+    --seq_type prot \
+    --input_file ../data/test_data/prot/test_prot.csv \
+    --id_idx 0 \
+    --seq_idx 1 \
+    --save_path ../embedding/esm2/test_data/prot/test_prot \
+    --embedding_type matrix \
+    --matrix_add_special_token \
+    --embedding_complete \
+    --embedding_complete_seg_overlap \
+    --gpu_id 0   
+```
+
+##### for `fasta` format file as input  
+```shell
+# for protein
+cd ./algorithms/
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
+python inference_embedding_esm.py \
+    --llm_type esm2 \
+    --llm_version 3B \
+    --truncation_seq_length 4096 \
+    --trunc_type right \
+    --seq_type prot \
+    --input_file ../data/test_data/prot/test_prot.fasta \
+    --save_path ../embedding/esm2/test_data/prot/test_prot \
+    --embedding_type matrix \
+    --matrix_add_special_token \
+    --embedding_complete \
+    --embedding_complete_seg_overlap \
+    --gpu_id 0   
+```
+
+## 7. Data and Code Availability
 **FTP:**   
 Pre-training data, code, and trained checkpoint of LucaOne, embedding inference code, downstream validation tasks data & code, and other materials are available: <a href='http://47.93.21.181/lucaone/'>FTP</a>.
 
@@ -242,7 +333,7 @@ The datasets of downstream tasks are available at: <a href='http://47.93.21.181/
 Other supplementary materials are available at: <a href='http://47.93.21.181/lucaone/Others/'> Others </a>.
 
 
-## 6. Contributor    
+## 8. Contributor    
 <a href="https://scholar.google.com.hk/citations?user=RDbqGTcAAAAJ&hl=en" title="Yong He">Yong He</a>,
 <a href="https://scholar.google.com/citations?user=lT3nelQAAAAJ&hl=en" title="Zhaorong Li">Zhaorong Li</a>,
 <a href="https://scholar.google.com/citations?view_op=list_works&hl=en&user=uvrzUfEAAAAJ" title="Yongtao Shan">Yongtao Shan</a>, Yanhong Wei,
@@ -250,7 +341,7 @@ Other supplementary materials are available at: <a href='http://47.93.21.181/luc
 <a href="https://scholar.google.com/citations?user=1KJOH7YAAAAJ&hl=zh-CN&oi=ao" title="Mang Shi">Mang Shi</a> 
 
 
-## 7. Zenodo     
+## 9. Zenodo     
 We have uploaded the model code, training scripts, and embedding inference scripts of LucaOne;    
 The mode code, training and evaluation scripts, datasets, and trained models for downstream tasks,    
 and additional supplementary materials to Zenodo (10.5281/zenodo.14604463).    
@@ -261,7 +352,7 @@ We are actively seeking an open FTP platform with sufficient storage capacity to
 **<a href='https://doi.org/10.5281/zenodo.14604463'>LucaOne Zenodo</a>**
 
 
-## 8. Citation
+## 10. Citation
 **<a href='https://www.biorxiv.org/content/10.1101/2024.05.10.592927v1'>LucaOne Biorxiv</a>**
 
 
@@ -278,7 +369,7 @@ journal = {bioRxiv}
 }
 
 
-## 9. LucaTeam
+## 11. LucaTeam
 
 <center>
 <img alt="LucaTeam" src="./pics/LucaTeam.jpg"/>
