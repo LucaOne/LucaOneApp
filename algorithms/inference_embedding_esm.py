@@ -58,6 +58,11 @@ def get_args():
     parser.add_argument("--embedding_type", type=str, default="matrix",
                         choices=["matrix", "vector", "contact"],
                         help="llm embedding type.")
+    parser.add_argument("--vector_type",
+                        type=str,
+                        default="mean",
+                        choices=["mean", "max", "cls"],
+                        help="the llm vector embedding type.")
     parser.add_argument("--trunc_type", type=str, default="right",
                         choices=["left", "right"],
                         help="llm trunc type of seq.")
@@ -74,7 +79,7 @@ def get_args():
     parser.add_argument("--embedding_fixed_len_a_time", type=int, default=None,
                         help="the embedding fixed length of once inference for longer sequence")
 
-    parser.add_argument('--gpu', type=int, default=-1, help="the gpu id to use.")
+    parser.add_argument('--gpu_id', type=int, default=-1, help="the gpu id to use.")
 
     input_args = parser.parse_args()
     return input_args

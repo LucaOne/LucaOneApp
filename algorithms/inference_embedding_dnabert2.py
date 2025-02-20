@@ -73,7 +73,7 @@ def get_args():
                         action="store_true",
                         help="when the seq len > inference_max_len, then the embedding matrix is completed by segment")
 
-    parser.add_argument('--gpu', type=int, default=-1,
+    parser.add_argument('--gpu_id', type=int, default=-1,
                         help="the gpu id to use.")
 
     input_args = parser.parse_args()
@@ -82,8 +82,8 @@ def get_args():
 
 def main(model_args):
     print(model_args)
-    if model_args.gpu >= 0:
-        gpu_id = model_args.gpu
+    if model_args.gpu_id >= 0:
+        gpu_id = model_args.gpu_id
     else:
         # gpu_id = available_gpu_id()
         gpu_id = -1

@@ -86,7 +86,7 @@ def get_args():
     parser.add_argument("--embedding_fixed_len_a_time", type=int, default=None,
                         help="the embedding fixed length of once inference for longer sequence")
 
-    parser.add_argument('--gpu', type=int, default=-1,
+    parser.add_argument('--gpu_id', type=int, default=-1,
                         help="the gpu id to use.")
 
     input_args = parser.parse_args()
