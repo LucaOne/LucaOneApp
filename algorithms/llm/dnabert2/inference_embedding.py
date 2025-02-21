@@ -41,18 +41,19 @@ def predict_embedding(
         version="dnabert2",
         matrix_add_special_token=False
 ):
-    '''
-    use sequence to predict protein embedding matrix or vector(bos)
-    :param sample: [protein_id, protein_sequence]
-    :param trunc_type:
-    :param embedding_type: bos or representations
-    :param repr_layers: [-1]
-    :param truncation_seq_length: [4094,2046,1982,1790,1534,1278,1150,1022]
-    :param device
-    :param version
-    :param matrix_add_special_token
+    """
+    use sequence to predict the seq embedding matrix or vector([CLS])
+    :param sample: [seq_id, seq]
+    :param trunc_type: right or left when the input seq is too longer
+    :param embedding_type: [CLS] vector or embedding matrix
+    :param repr_layers: [-1], the last layer
+    :param truncation_seq_length: such as: [4094, 2046, 1982, 1790, 1534, 1278, 1150, 1022]
+    :param device: running device
+    :param version: llm version
+    :param matrix_add_special_token: embedding matrix contains [CLS] and [SEP] vector or not
     :return: embedding, processed_seq_len
-    '''
+    """
+
     global dnabert2_global_model, dnabert2_global_alphabet, dnabert2_global_version
     assert "bos" in embedding_type or "representations" in embedding_type \
            or "matrix" in embedding_type or "vector" in embedding_type or "contacts" in embedding_type

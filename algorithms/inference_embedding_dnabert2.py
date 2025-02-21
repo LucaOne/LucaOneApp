@@ -64,11 +64,11 @@ def get_args():
 
     parser.add_argument("--trunc_type", type=str, default="right",
                         choices=["left", "right"],
-                        help="llm trunc type.")
+                        help="llm trunc type when the seq is too longer.")
     parser.add_argument("--truncation_seq_length", type=int, default=4094,
                         help="the llm truncation seq length(not contain [CLS] and [SEP].")
     parser.add_argument("--matrix_add_special_token", action="store_true",
-                        help="whether to add special token embedding vector in seq representation matrix")
+                        help="whether to add special tokens([CLS] and [SEP]) vector in seq representation matrix")
     parser.add_argument("--embedding_complete",
                         action="store_true",
                         help="when the seq len > inference_max_len, then the embedding matrix is completed by segment")
