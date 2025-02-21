@@ -326,17 +326,18 @@ def predict_embedding(
         device=None,
         matrix_add_special_token=False
 ):
-    '''
-    use sequence to predict protein embedding matrix or vector(bos)
-    :param sample: [protein_id, protein_sequence]
-    :param trunc_type:
-    :param embedding_type: bos or representations
-    :param repr_layers: [-1]
-    :param truncation_seq_length: [4094, 2046, 1982, 1790, 1534, 1278, 1150, 1022]
-    :param device
-    :param matrix_add_special_token
+    """
+    use sequence to predict the seq embedding matrix or vector([CLS])
+    :param llm_dirpath: llm dirpath
+    :param sample: [seq_id, seq_type, seq], seq_type: gene or prot
+    :param trunc_type: right or left when the input seq is too longer
+    :param embedding_type: [CLS] vector or embedding matrix
+    :param repr_layers: [-1], the last layer
+    :param truncation_seq_length: such as: [4094, 2046, 1982, 1790, 1534, 1278, 1150, 1022]
+    :param device: running device
+    :param matrix_add_special_token: embedding matrix contains [CLS] and [SEP] vector or not
     :return: embedding, processed_seq_len
-    '''
+    """
 
     global lucaone_global_log_filepath, lucaone_global_model_dirpath, lucaone_global_args_info, \
         lucaone_global_model_config, lucaone_global_model_version, lucaone_global_model, lucaone_global_tokenizer
@@ -402,6 +403,8 @@ def predict_embedding(
             embedding = emb.hidden_states_b
         else:
             embedding = emb.hidden_states
+        # processed_seq_len = seq_len + 2([CLS] and [SEP]
+        # embedding matrix contain [CLS] and [SEP] vector
         if matrix_add_special_token:
             embeddings["representations"] = embedding[0, 0: processed_seq_len, :].to(device="cpu").clone().numpy()
         else:

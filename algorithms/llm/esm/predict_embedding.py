@@ -356,18 +356,19 @@ def predict_embedding(
         version="3B",
         matrix_add_special_token=False
 ):
-    '''
-    use sequence to predict protein embedding matrix or vector(bos)
-    :param sample: [protein_id, protein_sequence]
-    :param trunc_type:
-    :param embedding_type: bos or representations
-    :param repr_layers: [-1]
-    :param truncation_seq_length: [4094,2046,1982,1790,1534,1278,1150,1022]
-    :param device
-    :param version
-    :param matrix_add_special_token
+    """
+    use sequence to predict the seq embedding matrix or vector([CLS])
+    :param sample: [seq_id, seq]
+    :param trunc_type: right or left when the input seq is too longer
+    :param embedding_type: [CLS] vector or embedding matrix
+    :param repr_layers: [-1], the last layer
+    :param truncation_seq_length: such as: [4094, 2046, 1982, 1790, 1534, 1278, 1150, 1022]
+    :param device: running device
+    :param version: llm version
+    :param matrix_add_special_token: embedding matrix contains [CLS] and [SEP] vector or not
     :return: embedding, processed_seq_len
-    '''
+    """
+
     global esm_global_model, esm_global_alphabet, esm_global_version, esm_global_layer_size
     assert "bos" in embedding_type or "representations" in embedding_type \
            or "matrix" in embedding_type or "vector" in embedding_type or "contacts" in embedding_type
@@ -423,8 +424,10 @@ def predict_embedding(
             tokens = tokens.to(device=device, non_blocking=True)
         try:
             out = esm_global_model(tokens, repr_layers=repr_layers, return_contacts=False)
+            # tokens contain [CLS] and [SEP], raw_seqs not contain [CLS], [SEP]
             truncate_len = min(truncation_seq_length, len(raw_seqs[0]))
             if "representations" in embedding_type or "matrix" in embedding_type:
+                # embedding matrix contain [CLS] and [SEP] vector
                 if matrix_add_special_token:
                     embedding = out["representations"][esm_global_layer_size].to(device="cpu")[0, 0: truncate_len + 2].clone().numpy()
                 else:
