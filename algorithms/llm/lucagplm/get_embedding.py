@@ -312,6 +312,7 @@ def get_embedding(
             output = model(**batch)
             return output, processed_seq_len
     except Exception as e:
+        print(f"sequence seq_type: {seq_type} of length {len(seq)}.")
         print(e)
         return None, None
 
