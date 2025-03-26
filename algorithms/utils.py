@@ -866,12 +866,14 @@ def download_trained_checkpoint_lucaone(
         for logs_file_name in logs_file_names:
             if not os.path.exists(os.path.join(logs_local_dir, logs_file_name)):
                 exists = False
+                print(os.path.abspath(os.path.join(logs_local_dir, logs_file_name)) + ' not exists.')
                 break
         models_local_dir = os.path.join(llm_dir, models_path)
         if exists:
             for models_file_name in models_file_names:
                 if not os.path.exists(os.path.join(models_local_dir, models_file_name)):
                     exists = False
+                    print(os.path.abspath(os.path.join(models_local_dir, models_file_name)) + ' not exists.')
                     break
         if not exists:
             print("*" * 20 + "Downloading" + "*" * 20)
