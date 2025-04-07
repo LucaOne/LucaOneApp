@@ -83,7 +83,7 @@ def load_model(
             do_lower_case=args_info["do_lower_case"],
             truncation_side=args_info["truncation"]
         )
-    elif args_info["model_type"] in ["lucaone_gplm"]:
+    elif args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]:
         print("Alphabet, vocab path: %s" % tokenizer_dir)
         if "/v2.0/" in model_dirpath:
             tokenizer = AlphabetV2_0.from_predefined("gene_prot")
@@ -96,7 +96,7 @@ def load_model(
             do_lower_case=args_info["do_lower_case"],
             truncation_side=args_info["truncation"])
     # four type of models
-    if args_info["model_type"] in ["lucaone_gplm"]:
+    if args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]:
         if "/v2.0/" in model_dirpath:
             config_class, model_class = LucaGPLMConfigV2_0, LucaGPLMV2_0
         else:
@@ -671,8 +671,13 @@ def main(model_args):
         model_args.llm_type = "lucaone"
     if not hasattr(model_args, "llm_version") or model_args.llm_version is None:
         model_args.llm_version = "lucaone"
-    if not hasattr(model_args, "llm_step"):
-        model_args.llm_step = "36000000"
+    if model_args.llm_step is None or model_args.llm_step not in ["5600000", "17600000", "30000000", "36000000" "36800000"]:
+        if model_args.llm_version == "lucaone":
+            model_args.llm_step = "30000000"
+        elif model_args.llm_version == "lucaone-gene":
+            model_args.llm_step = "36800000"
+        elif model_args.llm_version == "lucaone-prot":
+            model_args.llm_step = "30000000"
     download_trained_checkpoint_lucaone(
         llm_dir=os.path.join(model_args.llm_dir, "llm/"),
         llm_type=model_args.llm_type,

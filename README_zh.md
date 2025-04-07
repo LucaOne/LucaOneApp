@@ -138,7 +138,7 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 ```shell
 # 对核酸(DNA或者RNA)进行embedding(输入csv文件，需要指明id与seq的列号)     
 ## using lucaone
-cd ./algorithms/
+cd algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8" 
 python inference_embedding_lucaone.py \
     --llm_dir ../models \
@@ -161,8 +161,6 @@ python inference_embedding_lucaone.py \
 
 ```shell
 ## using lucaone-gene
-cd ./algorithms/
-export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
     --llm_dir ../models \
     --llm_type lucaone \
@@ -185,7 +183,7 @@ python inference_embedding_lucaone.py \
 ```shell
 # 对蛋白质进行embedding(输入csv文件，需要指明id与seq的列号)   
 ## using lucaone
-cd ./algorithms/  
+cd algorithms/  
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
     --llm_dir ../models  \
@@ -232,7 +230,7 @@ python inference_embedding_lucaone.py \
 ```shell
 # 对对核酸(DNA或者RNA)进行embedding(输入fasta文件，seq头最好进行唯一id重命名，别包含特殊符号)   
 ## using lucaone
-cd ./algorithms/
+cd algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
     --llm_dir ../models \
@@ -274,7 +272,7 @@ python inference_embedding_lucaone.py \
 ```shell
 # 对蛋白质进行embedding(输入fasta文件，seq头最好进行唯一id重命名，别包含特殊符号)   
 ## using lucaone
-cd ./algorithms/
+cd algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
     --llm_dir ../models \
@@ -326,7 +324,7 @@ pip install -r requirements_dnabert2.txt -i https://pypi.tuna.tsinghua.edu.cn/si
 ##### for `csv` format file as input
 ```shell
 # for gene
-cd ./algorithms/
+cd algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_dnabert2.py \
     --truncation_seq_length 10240 \
@@ -345,7 +343,7 @@ python inference_embedding_dnabert2.py \
 ##### for `fasta` format file as input
 ```shell
 # for gene
-cd ./algorithms/
+cd algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_dnabert2.py \
     --truncation_seq_length 10240 \
@@ -364,7 +362,7 @@ python inference_embedding_dnabert2.py \
 ##### for `csv` format file as input
 ```shell
 # for protein
-cd ./algorithms/
+cd algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_esm.py \
     --llm_type esm2 \
@@ -386,7 +384,7 @@ python inference_embedding_esm.py \
 ##### for `fasta` format file as input
 ```shell
 # for protein
-cd ./algorithms/
+cd algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_esm.py \
     --llm_type esm2 \

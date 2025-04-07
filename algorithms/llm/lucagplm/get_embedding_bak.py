@@ -83,7 +83,7 @@ def load_model(
             do_lower_case=args_info["do_lower_case"],
             truncation_side=args_info["truncation"]
         )
-    elif args_info["model_type"] in ["lucaone_gplm"]:
+    elif args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]
         print("Alphabet, vocab path: %s" % tokenizer_dir)
         if "/v2.0/" in model_dirpath:
             tokenizer = AlphabetV2_0.from_predefined("gene_prot")
@@ -96,7 +96,7 @@ def load_model(
             do_lower_case=args_info["do_lower_case"],
             truncation_side=args_info["truncation"])
     # four type of models
-    if args_info["model_type"] in ["lucaone_gplm"]:
+    if args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]:
         if "/v2.0/" in model_dirpath:
             config_class, model_class = LucaGPLMConfigV2_0, LucaGPLMV2_0
         else:
