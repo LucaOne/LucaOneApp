@@ -668,31 +668,50 @@ def main(model_args):
     if not hasattr(model_args, "llm_dir") or model_args.llm_dir is None:
         model_args.llm_dir = "../models"
     if not hasattr(model_args, "llm_type") or model_args.llm_type is None:
-        model_args.llm_type = "lucaone"
-    if not hasattr(model_args, "llm_version") or model_args.llm_version is None:
-        model_args.llm_version = "lucaone"
+        model_args.llm_type = "lucaone_gplm"
     if not hasattr(model_args, "llm_step"):
-        model_args.llm_step = "36000000"
+        model_args.llm_step = "5600000"
+    if not hasattr(model_args, "llm_time_str"):
+        model_args.llm_time_str = "20231125113045"
+    if not hasattr(model_args, "llm_version"):
+        model_args.llm_version = "v2.0"
+    if not hasattr(model_args, "llm_task_level"):
+        model_args.llm_task_level = "token_level,span_level,seq_level,structure_level"
     download_trained_checkpoint_lucaone(
         llm_dir=os.path.join(model_args.llm_dir, "llm/"),
         llm_type=model_args.llm_type,
+        llm_time_str=model_args.llm_time_str,
         llm_version=model_args.llm_version,
+        llm_task_level=model_args.llm_task_level,
         llm_step=model_args.llm_step
     )
 
-    cur_log_filepath = "%s/llm/logs/%s/%s/logs.txt" % (
-        model_args.llm_dir,
-        model_args.llm_type,
-        model_args.llm_version
+    cur_log_filepath = "%s/llm/logs/lucagplm/%s/%s/%s/%s/logs.txt" % (
+        model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+        model_args.llm_type, model_args.llm_time_str
     )
     print("log_filepath: %s" % cur_log_filepath)
-    cur_model_dirpath = "%s/llm/models/%s/%s/checkpoint-step%s" % (
-        model_args.llm_dir,
-        model_args.llm_type,
-        model_args.llm_version,
-        model_args.llm_step
+
+    cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-%s" % (
+        model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+        model_args.llm_type, model_args.llm_time_str, model_args.llm_step
     )
+    if not os.path.exists(cur_model_dirpath):
+        cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-step%s" % (
+            model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+            model_args.llm_type, model_args.llm_time_str, model_args.llm_step
+        )
     print("model_dirpath: %s" % cur_model_dirpath)
+
+    if not os.path.exists(cur_model_dirpath):
+        cur_model_dirpath = "%s/models/lucagplm/%s/%s/%s/%s/checkpoint-step%s" % (
+            model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+            model_args.llm_type, model_args.llm_time_str, model_args.llm_step
+        )
+        cur_log_filepath = "%s/logs/lucagplm/%s/%s/%s/%s/logs.txt" % (
+            model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+            model_args.llm_type, model_args.llm_time_str
+        )
     if lucaone_global_log_filepath != cur_log_filepath or lucaone_global_model_dirpath != cur_model_dirpath:
         lucaone_global_log_filepath = cur_log_filepath
         lucaone_global_model_dirpath = cur_model_dirpath
@@ -705,6 +724,7 @@ def main(model_args):
     if model_args.gpu_id >= 0:
         gpu_id = model_args.gpu_id
     else:
+        # gpu_id = available_gpu_id()
         gpu_id = -1
         print("gpu_id: ", gpu_id)
     model_args.device = torch.device("cuda:%d" % gpu_id if gpu_id > -1 else "cpu")

@@ -1,48 +1,24 @@
-# LucaOne APP
-使用LucaOne对序列进行embedding    
+# LucaOne APP      
 
 ## TimeLine
-* 2025/04/01:
-    * LucaOne         
-      `LucaOne` 增加了 `checkpoint=36000000`  
-
-    * LucaOne-Prot    
-      增加了`LucaOne-Prot` (只使用`Protein`序列训练)的`checkpoint=30000000`  
-
-    * LucaOne-Gene     
-      增加了`LucaOne-gene` (只使用`DNA`与`RNA`序列训练)的`checkpoint=36800000`   
-
-* 2024/10/01: optimized embedding inference code: `src/llm/lucagplm/get_embedding.py`
+* 2024/10/01: optimized embedding inference code: `src/llm/lucagplm/get_embedding.py`   
 * 2024/08/01: add `checkpoint=17600000`, location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/models/lucagplm/v2.0/token_level,span_level,seq_level,structure_level/lucaone_gplm/20231125113045/checkpoint-step17600000/'>checkpoint-step17600000</a>     
-这个工程相应的checkpoint会自动从FTP根据embedding命令提供的下列参数值下载相应版本的checkpoint文件: 
-* **--llm_type**
-* **--llm_version**
-* **--llm_step**
-
-# Embedding Recommendation
-| --llm_type | --llm_version  | --llm_step |             Usage (seq_type)              |
-|:----------:|:--------------:|:----------:|:-----------------------------------------:|
-| `lucaone`  |   `lucaone`    | `36000000` | 对`DNA`、`RNA`、或者`Protein`都可以<br/>(无差别embedding) |
-| `lucaone`  | `lucaone-gene` | `36800000` |          只对`DNA`、`RNA`embedding           |
-| `lucaone`  | `lucaone-prot` | `30000000` |        只对`Protein`embedding               |
+This project will download the checkpoint automatically according to the value of parameter **--llm_step**.  
 
 
-## 1. Embedding
 对核酸序列或者蛋白序列进行embedding，embedding有两种方式：matrix矩阵与vector向量。          
-建议：如果使用matrix，在后续的下游模型中具体使用时，可以使用: 
-* [CLS] Vector (embedding matrix[0, :], 无参数化pooling)
-* Avg Pooling/Mean Pooling(无参数化pooling)
-* Max Pooling(无参数化pooling)
-* Value-Level Attention Pooling(参数化pooling, recommended) (ref: https://arxiv.org/abs/2210.03970)      
+建议：如果使用matrix，在后续的下游网络中具体使用时，可以使用: 
+* [CLS] Vector
+* Avg Pooling
+* Max Pooling(recommend)    
+* Value-Level Attention Pooling(recommend) (ref: https://arxiv.org/abs/2210.03970)    
 ...    
-Pooling: transform the embedding matrix into a vector.             
-Recommended: Use pooling in downstream networks rather than in data pre-processing.    
-如果你是进行无监督式的分析，比如聚类分析、比如T-SNE分析，那么直接使用无参数化的pooing，比如CLS，Mean Pooling，如果使用embedding
-作为你的下游训练任务的输入，比如分类或者回归，那么建议使用参数化的pooing方法，pooling中的参数在下游模型中会进行学习。   
-**Notice**: If your downstream task is sequence-level learning, use the pooling operation; otherwise, it is not required (for example: token-level task).
+Pooling: transform the embedding matrix into a vector.        
+Recommend: Use pooling in downstream networks rather than in data pre-processing.    
+**Notice**: If your task is sequence, use the pooling operation; otherwise, it is not required.
 
 
-## 2. Environment installation          
+## 1. Environment installation          
 ### step1: update git
 #### 1) centos
 sudo yum update     
@@ -73,7 +49,7 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ## 2. Preparation
 前置工作：   
-Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/latest/'>TrainedCheckPoint for LucaOne</a>    
+Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/'>TrainedCheckPoint for LucaOne</a>    
 
 从上述的FTP中将目录`logs`与目录`models`拷贝到 `./models/llm/`目录下          
 
@@ -104,23 +80,21 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 ### Parameters      
 
 #### 1) 模型版本参数(使用默认值即可):             
-* llm_dir: 模型文件存放的路径，默认在`../models/`下         
-* llm_type: 模型的类型，默认: `lucaone`       
-* llm_version: 模型版本，默认: `lucaone`，选项：[`lucaone`, `lucaone-gene`, `lucaone-prot`] 
-* **llm_step: 需要使用的checkpoint step**，
-默认:    
-  `36000000` for `lucaone`, choices for `lucaone`: [`5600000`, `17600000`, `36000000`],        
-  `36800000` for `lucaone-gene`,     
-  `30000000` for `lucaone-prot`    
+* llm_dir: 模型文件存放的路径，默认在../models/下         
+* llm_type: 模型的类型，默认lucagplm       
+* llm_version: 模型版本，默认v2.0       
+* llm_task_level: 模型预训练的任务，默认token_level,span_level,seq_level,structure_level        
+* llm_time_str: 模型开始训练的时间字符串，默认为20231125113045       
+* llm_step: 当前使用的checkpoint step，默认为5600000，后面会随着训练进行更新, choices=[5600000, 17600000]          
 
 #### 2) 重要参数: 
-* embedding_type: matrix/vector, 分别为整个序列的矩阵或者[CLS]向量       
+* embedding_type: matrix/vector, 分别为整个序列的矩阵或者[CLS]向量      
 * trunc_type: 如果序列超过最大长度则阶段，right或者left     
 * truncation_seq_length: 最大长度（不包括[CLS]与[SEP])，本身不限制长度，取决于embedding推理的显存          
 * matrix_add_special_token: 如果embedding是matrix，则matrix是否包括[CLS]与[SEP]向量        
 * seq_type: 输入序列的类型，gene表示核酸，prot表示蛋白          
-* input_file: 输入文件路径（fasta格式或者csv格式）           
-* save_path: embedding文件保存路径，一个序列保存成一个文件        
+* fasta fasta文件，id需要是命名文件名是合法的，因为使用id去命名embedding文件            
+* save_path: embedding文件保存路径     
 * embedding_complete: 当 `embedding_complete`被设置的时候, `truncation_seq_length`是无效的. 如果显存不够一次性推理整个序列，是否进行分段补全（如果不使用该参数，则每次截断0.95*len直到显卡可容纳的长度  
 * embedding_complete_seg_overlap: 当`embedding_complete`被设置的时候, 使用对序列分段embedding的分段是否重叠(overlap sliding window)    
 * embedding_fixed_len_a_time: When the input sequence is too long for your GPU to complete the inference at once, you can specify the fixed length of the inference at once(default: None)       
@@ -136,45 +110,23 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 
 ##### for `csv` format file as input   
 ```shell
-# 对核酸(DNA或者RNA)进行embedding(输入csv文件，需要指明id与seq的列号)     
-## using lucaone
-cd ./algorithms/
-export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8" 
-python inference_embedding_lucaone.py \
-    --llm_dir ../models \
-    --llm_type lucaone \
-    --llm_version lucaone \
-    --llm_step 36000000 \
-    --truncation_seq_length 10240 \
-    --trunc_type right \
-    --seq_type gene \
-    --input_file ../data/test_data/gene/test_gene.csv \
-    --id_idx 0 \
-    --seq_idx 1 \
-    --save_path ../embedding/lucaone/test_data/gene/test_gene/ \
-    --embedding_type matrix \
-    --matrix_add_special_token \
-    --embedding_complete \
-    --embedding_complete_seg_overlap \
-    --gpu_id 0   
-```
-
-```shell
-## using lucaone-gene
+# 对核酸(DNA或者RNA)进行embedding(输入csv文件，需要指明id与seq的列号)   
 cd ./algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
-    --llm_dir ../models \
-    --llm_type lucaone \
-    --llm_version lucaone-gene \
-    --llm_step 36800000 \
-    --truncation_seq_length 10240 \
+    --llm_dir ../models/ \
+    --llm_type lucaone_gplm \
+    --llm_version v2.0 \
+    --llm_task_level token_level,span_level,seq_level,structure_level \
+    --llm_time_str 20231125113045 \
+    --llm_step 5600000 \
+    --truncation_seq_length 100000 \
     --trunc_type right \
     --seq_type gene \
-    --input_file ../data/test_data/gene/test_gene.csv \
+    --input_file ../data/gene/test_gene_dataset.csv \
     --id_idx 0 \
     --seq_idx 1 \
-    --save_path ../embedding/lucaone-gene/test_data/gene/test_gene/ \
+    --save_path ../embedding/lucaone/test/gene \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -184,128 +136,71 @@ python inference_embedding_lucaone.py \
 
 ```shell
 # 对蛋白质进行embedding(输入csv文件，需要指明id与seq的列号)   
-## using lucaone
-cd ./algorithms/  
+cd ./algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
-    --llm_dir ../models  \
-    --llm_type lucaone \
-    --llm_version lucaone \
-    --llm_step 36000000 \
-    --truncation_seq_length 4096 \
+    --llm_dir ../models/  \
+    --llm_type lucaone_gplm \
+    --llm_version v2.0 \
+    --llm_task_level token_level,span_level,seq_level,structure_level \
+    --llm_time_str 20231125113045 \
+    --llm_step 5600000 \
+    --truncation_seq_length 100000 \
     --trunc_type right \
     --seq_type prot \
-    --input_file ../data/test_data/prot/test_prot.csv \
-    --id_idx 2 \
-    --seq_idx 3 \
-    --save_path ../embedding/lucaone/test_data/prot/test_prot/ \
+    --input_file ../data/prot/test_prot_dataset.csv \
+    --id_idx 0 \
+    --seq_idx 1 \
+    --save_path ../embedding/lucaone/test/prot \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu_id 0   
- ```
-
-```shell
-## using lucaone-prot
-python inference_embedding_lucaone.py \
-    --llm_dir ../models  \
-    --llm_type lucaone \
-    --llm_version lucaone-prot \
-    --llm_step 30000000 \
-    --truncation_seq_length 4096 \
-    --trunc_type right \
-    --seq_type prot \
-    --input_file ../data/test_data/prot/test_prot.csv \
-    --id_idx 2 \
-    --seq_idx 3 \
-    --save_path ../embedding/lucaone-prot/test_data/prot/test_prot/ \
-    --embedding_type matrix \
-    --matrix_add_special_token \
-    --embedding_complete \
-    --embedding_complete_seg_overlap \
-    --gpu_id 0   
+    --gpu_id 0 
 ```
 
 ##### for `fasta` format file as input   
 
 ```shell
 # 对对核酸(DNA或者RNA)进行embedding(输入fasta文件，seq头最好进行唯一id重命名，别包含特殊符号)   
-## using lucaone
 cd ./algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
-    --llm_dir ../models \
-    --llm_type lucaone \
-    --llm_version lucaone \
-    --llm_step 36000000 \
-    --truncation_seq_length 10240 \
+    --llm_dir ../models/ \
+    --llm_type lucaone_gplm \
+    --llm_version v2.0 \
+    --llm_task_level token_level,span_level,seq_level,structure_level \
+    --llm_time_str 20231125113045 \
+    --llm_step 5600000 \
+    --truncation_seq_length 100000 \
     --trunc_type right \
     --seq_type gene \
-    --input_file ../data/test_data/gene/test_gene.fasta \
-    --save_path ../embedding/lucaone/test_data/gene/test_gene/ \
+    --fasta ../data/prot/test_gene.fasta \
+    --save_path ../embedding/lucaone/test/gene/ \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
     --gpu_id 0   
 ```
-
-```shell
-## using lucaone-gene  
-python inference_embedding_lucaone.py \
-    --llm_dir ../models \
-    --llm_type lucaone \
-    --llm_version lucaone-gene \
-    --llm_step 36800000 \
-    --truncation_seq_length 10240 \
-    --trunc_type right \
-    --seq_type gene \
-    --input_file ../data/test_data/gene/test_gene.fasta \
-    --save_path ../embedding/lucaone-gene/test_data/gene/test_gene/ \
-    --embedding_type matrix \
-    --matrix_add_special_token \
-    --embedding_complete \
-    --embedding_complete_seg_overlap \
-    --gpu_id 0  
-```   
 
 
 ```shell
 # 对蛋白质进行embedding(输入fasta文件，seq头最好进行唯一id重命名，别包含特殊符号)   
-## using lucaone
 cd ./algorithms/
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8"
 python inference_embedding_lucaone.py \
-    --llm_dir ../models \
-    --llm_type lucaone \
-    --llm_version lucaone \
-    --llm_step 36000000 \
-    --truncation_seq_length 4096 \
+    --llm_dir ../models/ \
+    --llm_type lucaone_gplm \
+    --llm_version v2.0 \
+    --llm_task_level token_level,span_level,seq_level,structure_level \
+    --llm_time_str 20231125113045 \
+    --llm_step 5600000 \
+    --truncation_seq_length 100000 \
     --trunc_type right \
     --seq_type prot \
-    --input_file ../data/test_data/prot/test_prot.fasta \
-    --save_path ../embedding/lucaone/test_data/prot/test_prot/ \
-    --embedding_type matrix \
-    --matrix_add_special_token \
-    --embedding_complete \
-    --embedding_complete_seg_overlap \
-    --gpu_id 0   
-```
-
-
-```shell
-## using lucaone-prot
-python inference_embedding_lucaone.py \
-    --llm_dir ../models \
-    --llm_type lucaone \
-    --llm_version lucaone-prot \
-    --llm_step 30000000 \
-    --truncation_seq_length 4096 \
-    --trunc_type right \
-    --seq_type prot \
-    --input_file ../data/test_data/prot/test_prot.fasta \
-    --save_path ../embedding/lucaone-prot/test_data/prot/test_prot/ \
+    --fasta ../data/prot/test_prot.fasta \
+    --save_path ../embedding/lucaone/test/prot/ \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
