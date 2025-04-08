@@ -97,7 +97,7 @@ def get_args():
     )
     parser.add_argument(
         "--llm_step",
-        type=int,
+        type=str,
         default=None,
         choices=["5600000", "17600000", "30000000", "36000000", "36800000"],
         help="the llm checkpoint step."

@@ -17,7 +17,7 @@ sys.path.append(".")
 sys.path.append("..")
 sys.path.append("../algorithms")
 try:
-    from .llm.esm.predict_embedding import main
+    from llm.esm.predict_embedding import main
 except ImportError:
     from algorithms.llm.esm.predict_embedding import main
 

@@ -100,7 +100,7 @@ def main(model_args):
         matrix_add_special_token = model_args.matrix_add_special_token
     seq_type = model_args.seq_type
     emb_save_path = model_args.save_path
-    print("emb save dir: %s" % emb_save_path)
+    print("emb save dir: %s" % os.path.abspath(emb_save_path))
     if seq_type not in ["gene"]:
         raise Exception("Error! arg: --seq_type=%s is not 'gene'" % seq_type)
 

@@ -23,19 +23,21 @@ sys.path.append("../../../algorithms")
 from transformers import AutoTokenizer, PretrainedConfig, BertTokenizer
 from collections import OrderedDict
 try:
-    from ....args import Args
-    from ....file_operator import fasta_reader, csv_reader, tsv_reader
-    from ....utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
-        gene_seq_replace, clean_seq_luca, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
-    from ....batch_converter import BatchConverter
-    from .v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
-    from .v2_0.lucaone_gplm_config import LucaGPLMConfig as LucaGPLMConfigV2_0
-    from .v2_0.alphabet import Alphabet as AlphabetV2_0
+    from args import Args
+    from file_operator import fasta_reader, csv_reader, tsv_reader
+    from utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
+        gene_seq_replace, clean_seq_luca, available_gpu_id, \
+        download_trained_checkpoint_lucaone_v1, calc_emb_filename_by_seq_id
+    from batch_converter import BatchConverter
+    from llm.lucagplm.v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
+    from llm.lucagplm.v2_0.lucaone_gplm_config import LucaGPLMConfig as LucaGPLMConfigV2_0
+    from llm.lucagplm.v2_0.alphabet import Alphabet as AlphabetV2_0
 except ImportError as e:
     from algorithms.args import Args
     from algorithms.file_operator import fasta_reader, csv_reader, tsv_reader
     from algorithms.utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
-        gene_seq_replace, clean_seq_luca, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
+        gene_seq_replace, clean_seq_luca, available_gpu_id, \
+        download_trained_checkpoint_lucaone_v1, calc_emb_filename_by_seq_id
     from algorithms.batch_converter import BatchConverter
     from algorithms.llm.lucagplm.v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
     from algorithms.llm.lucagplm.v2_0.lucaone_gplm_config import LucaGPLMConfig as LucaGPLMConfigV2_0
@@ -83,7 +85,7 @@ def load_model(
             do_lower_case=args_info["do_lower_case"],
             truncation_side=args_info["truncation"]
         )
-    elif args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]
+    elif args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]:
         print("Alphabet, vocab path: %s" % tokenizer_dir)
         if "/v2.0/" in model_dirpath:
             tokenizer = AlphabetV2_0.from_predefined("gene_prot")
@@ -677,7 +679,7 @@ def main(model_args):
         model_args.llm_version = "v2.0"
     if not hasattr(model_args, "llm_task_level"):
         model_args.llm_task_level = "token_level,span_level,seq_level,structure_level"
-    download_trained_checkpoint_lucaone(
+    download_trained_checkpoint_lucaone_v1(
         llm_dir=os.path.join(model_args.llm_dir, "llm/"),
         llm_type=model_args.llm_type,
         llm_time_str=model_args.llm_time_str,
@@ -690,7 +692,7 @@ def main(model_args):
         model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
         model_args.llm_type, model_args.llm_time_str
     )
-    print("log_filepath: %s" % cur_log_filepath)
+    print("log_filepath: %s" % os.path.abspath(cur_log_filepath))
 
     cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-%s" % (
         model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
@@ -701,7 +703,7 @@ def main(model_args):
             model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
             model_args.llm_type, model_args.llm_time_str, model_args.llm_step
         )
-    print("model_dirpath: %s" % cur_model_dirpath)
+    print("model_dirpath: %s" % os.path.abspath(cur_model_dirpath))
 
     if not os.path.exists(cur_model_dirpath):
         cur_model_dirpath = "%s/models/lucagplm/%s/%s/%s/%s/checkpoint-step%s" % (
@@ -742,7 +744,7 @@ def main(model_args):
     save_path = model_args.save_path
     seq_type = model_args.seq_type
     emb_save_path = save_path
-    print("emb save dir: %s" % emb_save_path)
+    print("emb save dir: %s" % os.path.abspath(emb_save_path))
     if seq_type not in ["gene", "prot"]:
         raise Exception("Error! arg: --seq_type=%s is not gene or prot" % seq_type)
 

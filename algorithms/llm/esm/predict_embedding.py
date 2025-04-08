@@ -548,7 +548,7 @@ def main(args):
         matrix_add_special_token = args.matrix_add_special_token
     seq_type = args.seq_type
     emb_save_path = args.save_path
-    print("emb save dir: %s" % emb_save_path)
+    print("emb save dir: %s" % os.path.abspath(emb_save_path))
     if seq_type not in ["prot"]:
         raise Exception("Error! arg: --seq_type=%s is not 'prot'" % seq_type)
 

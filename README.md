@@ -3,14 +3,15 @@ Embedding using LucaOne
 
 ## TimeLine    
 * 2025/04/01:
-   * LucaOne         
-     add `checkpoint=36000000` for `LucaOne`
-
-   * LucaOne-Prot    
-     add `checkpoint=30000000` for `LucaOne-Prot` (only trained using `Protein`)
-
-   * LucaOne-Gene     
-     add `checkpoint=36800000` for `LucaOne-Gene` (only trained using `DNA` and `RNA`)
+    * **LucaOne**          
+      add `checkpoint=36000000` for `LucaOne`
+      location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/latest/models/lucaone/lucaone/checkpoint-step36000000/'>checkpoint-step36000000</a>
+    * **LucaOne-Gene**       
+      add `checkpoint=36800000` for `LucaOne-Gene` (only trained using `DNA` and `RNA`)  
+      location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/latest/models/lucaone-gene/lucaone/checkpoint-step36800000/'>checkpoint-step36800000</a>
+    * **LucaOne-Prot**      
+      add `checkpoint=30000000` for `LucaOne-Prot` (only trained using `Protein`)  
+      location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/latest/models/lucaone-prot/lucaone/checkpoint-step30000000/'>checkpoint-step30000000</a>
 
 * 2024/10/01: optimized embedding inference code: `src/llm/lucagplm/get_embedding.py`    
 * 2024/08/01: add `checkpoint=17600000`, location: <a href='http://47.93.21.181/lucaone/TrainedCheckPoint/models/lucagplm/v2.0/token_level,span_level,seq_level,structure_level/lucaone_gplm/20231125113045/checkpoint-step17600000/'>checkpoint-step17600000</a>     
@@ -170,7 +171,7 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu_id 0   
+    --gpu_id 0  
 ```
 
 ```shell
