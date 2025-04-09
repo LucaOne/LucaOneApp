@@ -17,9 +17,9 @@ sys.path.append(".")
 sys.path.append("..")
 sys.path.append("../algorithms")
 try:
-    from llm.lucagplm.get_embedding import main
+    from llm.lucagplm.get_embedding_v1 import main
 except ImportError:
-    from algorithms.llm.lucagplm.get_embedding import main
+    from algorithms.llm.lucagplm.get_embedding_v1 import main
 
 
 def get_args():
