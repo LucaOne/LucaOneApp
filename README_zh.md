@@ -20,12 +20,13 @@
 * **--llm_version**
 * **--llm_step**
 
+
 # Embedding Recommendation
-| --llm_type | --llm_version  | --llm_step |             Usage (seq_type)              |
-|:----------:|:--------------:|:----------:|:-----------------------------------------:|
-| `lucaone`  |   `lucaone`    | `36000000` | 对`DNA`、`RNA`、或者`Protein`都可以<br/>(无差别embedding) |
-| `lucaone`  | `lucaone-gene` | `36800000` |          只对`DNA`、`RNA`embedding           |
-| `lucaone`  | `lucaone-prot` | `30000000` |        只对`Protein`embedding               |
+| --llm_type | --llm_version  |              --llm_step              |             Usage (seq_type)              |
+|:----------:|:--------------:|:------------------------------------:|:-----------------------------------------:|
+| `lucaone`  |   `lucaone`    | `36000000`, `17600000`, 或者 `5600000` | 对`DNA`、`RNA`、或者`Protein`都可以<br/>(无差别embedding) |
+| `lucaone`  | `lucaone-gene` |              `36800000`              |          只对`DNA`、`RNA`embedding           |
+| `lucaone`  | `lucaone-prot` |              `30000000`              |        只对`Protein`embedding               |
 
 
 ## 1. Embedding

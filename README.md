@@ -22,12 +22,13 @@ This project will download the checkpoint automatically from our `FTP` according
 * **--llm_step**
 
 
-# Embedding Recommendation   
-| llm_type |  llm_version   |  llm_step   |                 Usage (seq_type)                 |
-|:--------:|:--------------:|:-----------:|:------------------------------------------------:|
-| lucaone  |   `lucaone`    | `36000000`  | both `gene` (i.e. `DNA`, `RNA`) and `prot` sequences |
-| lucaone  | `lucaone-gene` | `36800000`  |    only for `gene` (i.e. `DNA`, `RNA`) sequences     |
-| lucaone  | `lucaone-prot` | `30000000`  |             only for `prot` sequence             |
+## Embedding Recommendation
+| --llm_type | --llm_version  |              --llm_step              |                 Usage (seq_type)                 |
+|:----------:|:--------------:|:------------------------------------:|:------------------------------------------------:|
+| `lucaone`  |   `lucaone`    | `36000000`, `17600000`, or `5600000` | both `gene` (i.e. `DNA`, `RNA`) and `prot` sequences |
+| `lucaone`  | `lucaone-gene` |              `36800000`              |    only for `gene` (i.e. `DNA`, `RNA`) sequences     |
+| `lucaone`  | `lucaone-prot` |              `30000000`              |             only for `prot` sequence             | 
+
 
 
 ## 1. Embedding     
