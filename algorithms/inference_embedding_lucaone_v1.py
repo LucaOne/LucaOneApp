@@ -7,8 +7,8 @@
 @tel: 137****6540
 @datetime: 2023/12/8 15:10
 @project: LucaOneApp
-@file: inference_embedding_esm.py
-@desc: inference embedding of ESM2-3B
+@file: inference_embedding_lucaone.py
+@desc: inference embedding of LucaOne
 '''
 
 import sys
@@ -17,53 +17,62 @@ sys.path.append(".")
 sys.path.append("..")
 sys.path.append("../algorithms")
 try:
-    from llm.esm.predict_embedding import main
+    from llm.lucagplm.get_embedding_v1 import main
 except ImportError:
-    from algorithms.llm.esm.predict_embedding import main
+    from algorithms.llm.lucagplm.get_embedding_v1 import main
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description='ESM2 Embedding')
+    parser = argparse.ArgumentParser(description='LucaOne/LucaGPLM Embedding')
     # for one seq
     parser.add_argument("--seq_id", type=str, default=None,
                         help="the seq id")
     parser.add_argument("--seq", type=str, default=None,
                         help="when to input a seq")
-    parser.add_argument("--seq_type", type=str, default="prot",
-                        choices=["prot"],
+    parser.add_argument("--seq_type", type=str, default=None, required=True, choices=["gene", "prot"],
                         help="the input seq type")
 
-    # for many
+    # for many seqs
     parser.add_argument("--input_file", type=str, default=None,
                         help="the input filepath(.fasta or .csv or .tsv)")
-
-    # for input csv/tsv
     parser.add_argument("--id_idx", type=int, default=None,
                         help="id col idx(0 start)")
     parser.add_argument("--seq_idx", type=int, default=None,
                         help="seq col idx(0 start)")
 
-    # for saved path
+    # saved path
     parser.add_argument("--save_path", type=str, default=None,
                         help="embedding file save dir path")
 
-    parser.add_argument("--llm_type", type=str, default="esm2",
-                        choices=["esm2", "esm", "ESM"],
-                        help="llm type")
-    parser.add_argument("--llm_version", type=str, default="3B",
-                        choices=["15B", "3B", "650M", "150M"],
-                        help="llm version")
+    # for trained LucaOne
+    parser.add_argument("--llm_dir", type=str, default="../models/",
+                        help="the llm model dir")
+    parser.add_argument("--llm_type", type=str, default="lucaone_gplm", choices=["lucaone_gplm"],
+                        help="the llm type")
+    parser.add_argument("--llm_version", type=str, default="v2.0", choices=["v2.0"],
+                        help="the llm version")
+    parser.add_argument("--llm_task_level", type=str, default="token_level,span_level,seq_level,structure_level",
+                        choices=["token_level", "token_level,span_level,seq_level,structure_level"],
+                        help="the llm task level")
+    parser.add_argument("--llm_time_str", type=str, default=None,
+                        help="the llm running time str")
+    parser.add_argument("--llm_step", type=int, default=None,
+                        help="the llm checkpoint step.")
 
     # for embedding
-    parser.add_argument("--embedding_type", type=str, default="matrix",
-                        choices=["matrix", "vector", "contact"],
-                        help="llm embedding type.")
+    parser.add_argument("--embedding_type",
+                        type=str,
+                        default="matrix",
+                        choices=["matrix", "vector"],
+                        help="the llm embedding type.")
     parser.add_argument("--vector_type",
                         type=str,
                         default="mean",
                         choices=["mean", "max", "cls"],
                         help="the llm vector embedding type.")
-    parser.add_argument("--trunc_type", type=str, default="right",
+    parser.add_argument("--trunc_type",
+                        type=str,
+                        default="right",
                         choices=["left", "right"],
                         help="llm trunc type when the seq is too longer.")
     parser.add_argument("--truncation_seq_length", type=int, default=4094,
@@ -78,7 +87,8 @@ def get_args():
     parser.add_argument("--embedding_fixed_len_a_time", type=int, default=None,
                         help="the embedding fixed length of once inference for longer sequence")
 
-    parser.add_argument('--gpu_id', type=int, default=-1, help="the gpu id to use.")
+    parser.add_argument('--gpu_id', type=int, default=-1,
+                        help="the gpu id to use.")
 
     input_args = parser.parse_args()
     return input_args
@@ -86,4 +96,10 @@ def get_args():
 
 if __name__ == "__main__":
     run_args = get_args()
+    run_args_dict = {}
+    for attr, value in sorted(run_args.__dict__.items()):
+        run_args_dict[attr] = value
+    print("-" * 20 + "Input Args:" + "-" * 20)
+    print(run_args_dict)
+    print("-" * 50)
     main(run_args)

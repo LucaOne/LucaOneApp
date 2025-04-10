@@ -23,19 +23,21 @@ sys.path.append("../../../algorithms")
 from transformers import AutoTokenizer, PretrainedConfig, BertTokenizer
 from collections import OrderedDict
 try:
-    from ....args import Args
-    from ....file_operator import fasta_reader, csv_reader, tsv_reader
-    from ....utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
-        gene_seq_replace, clean_seq_luca, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
-    from ....batch_converter import BatchConverter
-    from .v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
-    from .v2_0.lucaone_gplm_config import LucaGPLMConfig as LucaGPLMConfigV2_0
-    from .v2_0.alphabet import Alphabet as AlphabetV2_0
+    from args import Args
+    from file_operator import fasta_reader, csv_reader, tsv_reader
+    from utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
+        gene_seq_replace, clean_seq_luca, available_gpu_id, \
+        download_trained_checkpoint_lucaone_v1, calc_emb_filename_by_seq_id
+    from batch_converter import BatchConverter
+    from llm.lucagplm.v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
+    from llm.lucagplm.v2_0.lucaone_gplm_config import LucaGPLMConfig as LucaGPLMConfigV2_0
+    from llm.lucagplm.v2_0.alphabet import Alphabet as AlphabetV2_0
 except ImportError as e:
     from algorithms.args import Args
     from algorithms.file_operator import fasta_reader, csv_reader, tsv_reader
     from algorithms.utils import set_seed, to_device, get_labels, get_parameter_number, seq_type_is_match_seq, \
-        gene_seq_replace, clean_seq_luca, available_gpu_id, download_trained_checkpoint_lucaone, calc_emb_filename_by_seq_id
+        gene_seq_replace, clean_seq_luca, available_gpu_id, \
+        download_trained_checkpoint_lucaone_v1, calc_emb_filename_by_seq_id
     from algorithms.batch_converter import BatchConverter
     from algorithms.llm.lucagplm.v2_0.lucaone_gplm import LucaGPLM as LucaGPLMV2_0
     from algorithms.llm.lucagplm.v2_0.lucaone_gplm_config import LucaGPLMConfig as LucaGPLMConfigV2_0
@@ -86,17 +88,22 @@ def load_model(
         )
     elif args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]:
         print("Alphabet, vocab path: %s" % tokenizer_dir)
-        tokenizer = AlphabetV2_0.from_predefined("gene_prot")
+        if "/v2.0/" in model_dirpath:
+            tokenizer = AlphabetV2_0.from_predefined("gene_prot")
+        else:
+            raise Exception("Not support version=%s" % model_dirpath)
     else:
         print("BertTokenizer, vocab path: %s" % tokenizer_dir)
         tokenizer = BertTokenizer.from_pretrained(
             tokenizer_dir,
             do_lower_case=args_info["do_lower_case"],
-            truncation_side=args_info["truncation"]
-        )
+            truncation_side=args_info["truncation"])
     # four type of models
     if args_info["model_type"] in ["lucaone_gplm", "lucaone", "lucagplm"]:
-        config_class, model_class = LucaGPLMConfigV2_0, LucaGPLMV2_0
+        if "/v2.0/" in model_dirpath:
+            config_class, model_class = LucaGPLMConfigV2_0, LucaGPLMV2_0
+        else:
+            raise Exception("Not support version=%s" % model_dirpath)
     else:
         raise Exception("Not support model_type=%s" % args_info["model_type"])
 
@@ -664,36 +671,50 @@ def main(model_args):
     if not hasattr(model_args, "llm_dir") or model_args.llm_dir is None:
         model_args.llm_dir = "../models"
     if not hasattr(model_args, "llm_type") or model_args.llm_type is None:
-        model_args.llm_type = "lucaone"
-    if not hasattr(model_args, "llm_version") or model_args.llm_version is None:
-        model_args.llm_version = "lucaone"
-    if model_args.llm_step is None or model_args.llm_step not in ["5600000", "17600000", "30000000", "36000000" "36800000"]:
-        if model_args.llm_version == "lucaone":
-            model_args.llm_step = "36000000"
-        elif model_args.llm_version == "lucaone-gene":
-            model_args.llm_step = "36800000"
-        elif model_args.llm_version == "lucaone-prot":
-            model_args.llm_step = "30000000"
-    download_trained_checkpoint_lucaone(
+        model_args.llm_type = "lucaone_gplm"
+    if not hasattr(model_args, "llm_step"):
+        model_args.llm_step = "5600000"
+    if not hasattr(model_args, "llm_time_str"):
+        model_args.llm_time_str = "20231125113045"
+    if not hasattr(model_args, "llm_version"):
+        model_args.llm_version = "v2.0"
+    if not hasattr(model_args, "llm_task_level"):
+        model_args.llm_task_level = "token_level,span_level,seq_level,structure_level"
+    download_trained_checkpoint_lucaone_v1(
         llm_dir=os.path.join(model_args.llm_dir, "llm/"),
         llm_type=model_args.llm_type,
+        llm_time_str=model_args.llm_time_str,
         llm_version=model_args.llm_version,
+        llm_task_level=model_args.llm_task_level,
         llm_step=model_args.llm_step
     )
 
-    cur_log_filepath = "%s/llm/logs/%s/%s/logs.txt" % (
-        model_args.llm_dir,
-        model_args.llm_type,
-        model_args.llm_version
+    cur_log_filepath = "%s/llm/logs/lucagplm/%s/%s/%s/%s/logs.txt" % (
+        model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+        model_args.llm_type, model_args.llm_time_str
     )
     print("log_filepath: %s" % os.path.abspath(cur_log_filepath))
-    cur_model_dirpath = "%s/llm/models/%s/%s/checkpoint-step%s" % (
-        model_args.llm_dir,
-        model_args.llm_type,
-        model_args.llm_version,
-        model_args.llm_step
+
+    cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-%s" % (
+        model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+        model_args.llm_type, model_args.llm_time_str, model_args.llm_step
     )
+    if not os.path.exists(cur_model_dirpath):
+        cur_model_dirpath = "%s/llm/models/lucagplm/%s/%s/%s/%s/checkpoint-step%s" % (
+            model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+            model_args.llm_type, model_args.llm_time_str, model_args.llm_step
+        )
     print("model_dirpath: %s" % os.path.abspath(cur_model_dirpath))
+
+    if not os.path.exists(cur_model_dirpath):
+        cur_model_dirpath = "%s/models/lucagplm/%s/%s/%s/%s/checkpoint-step%s" % (
+            model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+            model_args.llm_type, model_args.llm_time_str, model_args.llm_step
+        )
+        cur_log_filepath = "%s/logs/lucagplm/%s/%s/%s/%s/logs.txt" % (
+            model_args.llm_dir if model_args.llm_dir else "..", model_args.llm_version, model_args.llm_task_level,
+            model_args.llm_type, model_args.llm_time_str
+        )
     if lucaone_global_log_filepath != cur_log_filepath or lucaone_global_model_dirpath != cur_model_dirpath:
         lucaone_global_log_filepath = cur_log_filepath
         lucaone_global_model_dirpath = cur_model_dirpath
@@ -706,6 +727,7 @@ def main(model_args):
     if model_args.gpu_id >= 0:
         gpu_id = model_args.gpu_id
     else:
+        # gpu_id = available_gpu_id()
         gpu_id = -1
         print("gpu_id: ", gpu_id)
     model_args.device = torch.device("cuda:%d" % gpu_id if gpu_id > -1 else "cpu")
