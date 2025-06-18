@@ -40,8 +40,12 @@ def get_args():
                         help="the input seq type")
 
     # for many
-    parser.add_argument("--input_file", type=str, default=None,
-                        help="the input filepath(.fasta or .csv or .tsv)")
+    parser.add_argument(
+        "--input_file",
+        type=str,
+        default=None,
+        help="the input filepath(.fasta or .csv or .tsv)"
+    )
 
     # for input csv
     parser.add_argument("--id_idx", type=int, default=None,
@@ -50,17 +54,34 @@ def get_args():
                         help="seq col idx(0 start)")
 
     # for saved path
-    parser.add_argument("--save_path", type=str, default=None,
-                        help="embedding file save dir path")
+    parser.add_argument(
+        "--save_path",
+        type=str,
+        default=None,
+        help="embedding file save dir path"
+    )
 
-    parser.add_argument("--embedding_type", type=str, default="matrix",
-                        choices=["matrix", "vector"],
-                        help="the llm embedding type.")
-    parser.add_argument("--vector_type",
-                        type=str,
-                        default="mean",
-                        choices=["mean", "max", "cls"],
-                        help="the llm vector embedding type.")
+    parser.add_argument(
+        "--embedding_type",
+        type=str,
+        default="matrix",
+        choices=["matrix", "vector"],
+        help="the llm embedding type."
+    )
+    parser.add_argument(
+        "--save_type",
+        type=str,
+        default="numpy",
+        choices=["tensor", "numpy"],
+        help="the embedding save type(tensor or numpy)."
+    )
+    parser.add_argument(
+        "--vector_type",
+        type=str,
+        default="mean",
+        choices=["mean", "max", "cls"],
+        help="the llm vector embedding type."
+    )
 
     parser.add_argument("--trunc_type", type=str, default="right",
                         choices=["left", "right"],
@@ -137,7 +158,8 @@ def main(model_args):
                     truncation_seq_length=truncation_seq_length,
                     device=model_args.device,
                     version="dnabert2",
-                    matrix_add_special_token=matrix_add_special_token
+                    matrix_add_special_token=matrix_add_special_token,
+                    save_type=model_args.save_type
                 )
                 while emb is None:
                     print("%s embedding error, max_len from %d truncate to %d" % (
@@ -154,7 +176,8 @@ def main(model_args):
                         truncation_seq_length=truncation_seq_length,
                         device=model_args.device,
                         version="dnabert2",
-                        matrix_add_special_token=matrix_add_special_token
+                        matrix_add_special_token=matrix_add_special_token,
+                        save_type=model_args.save_type
                     )
                 # print("seq_len: %d" % len(seq))
                 # print("emb shape:", embedding_info.shape)
@@ -163,14 +186,26 @@ def main(model_args):
                         emb = emb[0, :]
                     elif vector_type == "max":
                         if matrix_add_special_token:
-                            emb = np.max(emb[1:-1, :], axis=0)
+                            if model_args.save_type == "numpy":
+                                emb = np.max(emb[1:-1, :], axis=0)
+                            else:
+                                emb = torch.amax(emb[1:-1, :], dim=0)
                         else:
-                            emb = np.max(emb, axis=0)
+                            if model_args.save_type == "numpy":
+                                emb = np.max(emb, axis=0)
+                            else:
+                                emb = torch.amax(emb, dim=0)
                     else:
                         if matrix_add_special_token:
-                            emb = np.mean(emb[1:-1, :], axis=0)
+                            if model_args.save_type == "numpy":
+                                emb = np.mean(emb[1:-1, :], axis=0)
+                            else:
+                                emb = torch.mean(emb[1:-1, :], dim=0)
                         else:
-                            emb = np.mean(emb, axis=0)
+                            if model_args.save_type == "numpy":
+                                emb = np.mean(emb, axis=0)
+                            else:
+                                emb = torch.mean(emb, dim=0)
                 torch.save(emb, embedding_filepath)
             else:
                 print("%s exists." % embedding_filepath)
@@ -188,7 +223,8 @@ def main(model_args):
             truncation_seq_length=model_args.truncation_seq_length,
             device=model_args.device,
             version="dnabert2",
-            matrix_add_special_token=matrix_add_special_token
+            matrix_add_special_token=matrix_add_special_token,
+            save_type=model_args.save_type
         )
         print("done seq length: %d" % processed_seq_len)
         print(emb)

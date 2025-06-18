@@ -112,6 +112,13 @@ def get_args():
         help="the llm embedding type."
     )
     parser.add_argument(
+        "--save_type",
+        type=str,
+        default="numpy",
+        choices=["tensor", "numpy"],
+        help="the embedding save type(tensor or numpy)."
+    )
+    parser.add_argument(
         "--vector_type",
         type=str,
         default="mean",

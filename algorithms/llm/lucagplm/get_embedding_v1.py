@@ -155,7 +155,13 @@ def load_model(
     return args_info, model_config, model, tokenizer
 
 
-def encoder(args_info, model_config, seq, seq_type, tokenizer):
+def encoder(
+        args_info,
+        model_config,
+        seq,
+        seq_type,
+        tokenizer
+):
     if args_info["tokenization"]:
         # seq to seq ids
         encoding = tokenizer.encode_plus(
@@ -329,7 +335,8 @@ def predict_embedding(
         repr_layers=[-1],
         truncation_seq_length=4094,
         device=None,
-        matrix_add_special_token=False
+        matrix_add_special_token=False,
+        save_type="numpy"
 ):
     """
     use sequence to predict the seq embedding matrix or vector([CLS])
@@ -341,9 +348,9 @@ def predict_embedding(
     :param truncation_seq_length: such as: [4094, 2046, 1982, 1790, 1534, 1278, 1150, 1022]
     :param device: running device
     :param matrix_add_special_token: embedding matrix contains [CLS] and [SEP] vector or not
+    :param save_type:
     :return: embedding, processed_seq_len
     """
-
     global lucaone_global_log_filepath, lucaone_global_model_dirpath, lucaone_global_args_info, \
         lucaone_global_model_config, lucaone_global_model_version, lucaone_global_model, lucaone_global_tokenizer
     assert "bos" in embedding_type \
@@ -411,22 +418,28 @@ def predict_embedding(
         # processed_seq_len = seq_len + 2([CLS] and [SEP]
         # embedding matrix contain [CLS] and [SEP] vector
         if matrix_add_special_token:
-            embeddings["representations"] = embedding[0, 0: processed_seq_len, :].to(device="cpu").clone().numpy()
+            embeddings["representations"] = embedding[0, 0: processed_seq_len, :].to(device="cpu").clone()
         else:
-            embeddings["representations"] = embedding[0, prepend_len: processed_seq_len - append_len, :].to(device="cpu").clone().numpy()
+            embeddings["representations"] = embedding[0, prepend_len: processed_seq_len - append_len, :].to(device="cpu").clone()
+        if save_type == "numpy":
+            embeddings["representations"] = embeddings["representations"].numpy()
         # print(embeddings["representations"].shape)
     if "bos" in embedding_type or "vector" in embedding_type:
         if seq_type == "prot":
             embedding = emb.hidden_states_b
         else:
             embedding = emb.hidden_states
-        embeddings["bos_representations"] = embedding[0, 0, :].to(device="cpu").clone().numpy()
+        embeddings["bos_representations"] = embedding[0, 0, :].to(device="cpu").clone()
+        if save_type == "numpy":
+            embeddings["bos_representations"] = embeddings["bos_representations"].numpy()
     if "contacts" in embedding_type:
         if seq_type == "prot":
             embedding = emb.contacts_b
         else:
             embedding = emb.contacts
-        embeddings["contacts"] = embedding.to(device="cpu")[0, :, :].clone().numpy()
+        embeddings["contacts"] = embedding.to(device="cpu")[0, :, :].clone()
+        if save_type == "numpy":
+            embeddings["contacts"] = embeddings["contacts"].numpy()
 
     if len(embeddings) > 1:
         return embeddings, processed_seq
@@ -445,6 +458,7 @@ def complete_embedding_matrix(
         model_args,
         embedding_type,
         matrix_add_special_token,
+        save_type="numpy",
         use_cpu=False
 ):
     if init_emb is not None and model_args.embedding_complete and ("representations" in embedding_type or "matrix" in embedding_type):
@@ -492,13 +506,17 @@ def complete_embedding_matrix(
                                 repr_layers=[-1],
                                 truncation_seq_length=truncation_seq_length,
                                 device=model_args.device if not use_cpu else torch.device("cpu"),
-                                matrix_add_special_token=False
+                                matrix_add_special_token=False,
+                                save_type=save_type
                             )
                             # 有seq overlap 所以要截取
                             if append_emb is None:
                                 append_emb = seg_emb[sliding_window:]
                             else:
-                                append_emb = np.concatenate((append_emb, seg_emb[sliding_window:]), axis=0)
+                                if save_type == "numpy":
+                                    append_emb = np.concatenate((append_emb, seg_emb[sliding_window:]), axis=0)
+                                else:
+                                    append_emb = torch.cat((append_emb, seg_emb[sliding_window:]), dim=0)
                         if last_end < ori_seq_len:
                             seg_idx += 1
                             remain = ori_seq_len - last_end
@@ -511,13 +529,17 @@ def complete_embedding_matrix(
                                 repr_layers=[-1],
                                 truncation_seq_length=truncation_seq_length,
                                 device=model_args.device if not use_cpu else torch.device("cpu"),
-                                matrix_add_special_token=False
+                                matrix_add_special_token=False,
+                                save_type=save_type
                             )
                             # 有seq overlap 所以要截取
                             if append_emb is None:
                                 append_emb = seg_emb[-remain:]
                             else:
-                                append_emb = np.concatenate((append_emb, seg_emb[-remain:]), axis=0)
+                                if save_type == "numpy":
+                                    append_emb = np.concatenate((append_emb, seg_emb[-remain:]), axis=0)
+                                else:
+                                    append_emb = torch.cat((append_emb, seg_emb[-remain:]), dim=0)
                     else:
                         last_start = -init_cur_segment_len
                         seg_idx = 0
@@ -533,13 +555,17 @@ def complete_embedding_matrix(
                                 repr_layers=[-1],
                                 truncation_seq_length=truncation_seq_length,
                                 device=model_args.device if not use_cpu else torch.device("cpu"),
-                                matrix_add_special_token=False
+                                matrix_add_special_token=False,
+                                save_type=save_type
                             )
                             # 有seq overlap 所以要截取
                             if append_emb is None:
                                 append_emb = seg_emb[:sliding_window]
                             else:
-                                append_emb = np.concatenate((seg_emb[:sliding_window], append_emb), axis=0)
+                                if save_type == "numpy":
+                                    append_emb = np.concatenate((seg_emb[:sliding_window], append_emb), axis=0)
+                                else:
+                                    append_emb = torch.cat((seg_emb[:sliding_window], append_emb), dim=0)
                         if last_start > -ori_seq_len:
                             seg_idx += 1
                             remain = last_start - ori_seq_len
@@ -552,13 +578,17 @@ def complete_embedding_matrix(
                                 repr_layers=[-1],
                                 truncation_seq_length=truncation_seq_length,
                                 device=model_args.device if not use_cpu else torch.device("cpu"),
-                                matrix_add_special_token=False
+                                matrix_add_special_token=False,
+                                save_type=save_type
                             )
                             # 有seq overlap 所以要截取
                             if append_emb is None:
                                 append_emb = seg_emb[:remain]
                             else:
-                                append_emb = np.concatenate((seg_emb[:remain], append_emb), axis=0)
+                                if save_type == "numpy":
+                                    append_emb = np.concatenate((seg_emb[:remain], append_emb), axis=0)
+                                else:
+                                    append_emb = torch.cat((seg_emb[:remain], append_emb), dim=0)
                 except Exception as e:
                     append_emb = None
                 if append_emb is not None:
@@ -586,16 +616,23 @@ def complete_embedding_matrix(
                             repr_layers=[-1],
                             truncation_seq_length=truncation_seq_length,
                             device=model_args.device if not use_cpu else torch.device("cpu"),
-                            matrix_add_special_token=False
+                            matrix_add_special_token=False,
+                            save_type=save_type
                         )
 
                         if append_emb is None:
                             append_emb = seg_emb
                         else:
                             if model_args.trunc_type == "right":
-                                append_emb = np.concatenate((append_emb, seg_emb), axis=0)
+                                if save_type == "numpy":
+                                    append_emb = np.concatenate((append_emb, seg_emb), axis=0)
+                                else:
+                                    append_emb = torch.cat((append_emb, seg_emb), dim=0)
                             else:
-                                append_emb = np.concatenate((seg_emb, append_emb), axis=0)
+                                if save_type == "numpy":
+                                    append_emb = np.concatenate((seg_emb, append_emb), axis=0)
+                                else:
+                                    append_emb = torch.cat((seg_emb, append_emb), dim=0)
 
                     if model_args.trunc_type == "right":
                         # 处理最后一个
@@ -611,10 +648,14 @@ def complete_embedding_matrix(
                             repr_layers=[-1],
                             truncation_seq_length=truncation_seq_length,
                             device=model_args.device if not use_cpu else torch.device("cpu"),
-                            matrix_add_special_token=False
+                            matrix_add_special_token=False,
+                            save_type=save_type
                         )
                         last_seg_emb = last_seg_emb[-really_len:, :]
-                        append_emb = np.concatenate((append_emb, last_seg_emb), axis=0)
+                        if save_type == "numpy":
+                            append_emb = np.concatenate((append_emb, last_seg_emb), axis=0)
+                        else:
+                            append_emb = torch.cat((append_emb, last_seg_emb), dim=0)
                     else:
                         # 处理第一个
                         first_seg_seq = seq[:cur_segment_len]
@@ -629,10 +670,14 @@ def complete_embedding_matrix(
                             repr_layers=[-1],
                             truncation_seq_length=truncation_seq_length,
                             device=model_args.device if not use_cpu else torch.device("cpu"),
-                            matrix_add_special_token=False
+                            matrix_add_special_token=False,
+                            save_type=save_type
                         )
                         first_seg_emb = first_seg_emb[:really_len, :]
-                        append_emb = np.concatenate((first_seg_emb, append_emb), axis=0)
+                        if save_type == "numpy":
+                            append_emb = np.concatenate((first_seg_emb, append_emb), axis=0)
+                        else:
+                            append_emb = torch.cat((first_seg_emb, append_emb), dim=0)
                 except Exception as e:
                     append_emb = None
                 if append_emb is not None:
@@ -648,9 +693,15 @@ def complete_embedding_matrix(
 
             append_emb = append_emb[init_cur_segment_len - cur_segment_len:]
         if model_args.trunc_type == "right":
-            complete_emb = np.concatenate((first_emb, append_emb), axis=0)
+            if save_type == "numpy":
+                complete_emb = np.concatenate((first_emb, append_emb), axis=0)
+            else:
+                complete_emb = torch.cat((first_emb, append_emb), dim=0)
         else:
-            complete_emb = np.concatenate((append_emb, first_emb), axis=0)
+            if save_type == "numpy":
+                complete_emb = np.concatenate((append_emb, first_emb), axis=0)
+            else:
+                complete_emb = torch.cat((append_emb, first_emb), dim=0)
         print("seq len: %d, seq embedding matrix len: %d" % (
             ori_seq_len,
             complete_emb.shape[0] + (2 if matrix_add_special_token else 0)
@@ -658,7 +709,10 @@ def complete_embedding_matrix(
         print("-" * 50)
         assert complete_emb.shape[0] == ori_seq_len
         if matrix_add_special_token:
-            complete_emb = np.concatenate((init_emb[0:1, :], complete_emb, init_emb[-1:, :]), axis=0)
+            if save_type == "numpy":
+                complete_emb = np.concatenate((init_emb[0:1, :], complete_emb, init_emb[-1:, :]), axis=0)
+            else:
+                complete_emb = torch.cat((init_emb[0:1, :], complete_emb, init_emb[-1:, :]), dim=0)
         init_emb = complete_emb
     return init_emb
 
@@ -791,7 +845,8 @@ def main(model_args):
                             repr_layers=[-1],
                             truncation_seq_length=model_args.embedding_fixed_len_a_time,
                             device=model_args.device,
-                            matrix_add_special_token=matrix_add_special_token
+                            matrix_add_special_token=matrix_add_special_token,
+                            save_type=model_args.save_type
                         )
                         # 如果指定的设备运行失败，则使用CPU
                         use_cpu = False
@@ -804,7 +859,8 @@ def main(model_args):
                                 repr_layers=[-1],
                                 truncation_seq_length=model_args.embedding_fixed_len_a_time,
                                 device=torch.device("cpu"),
-                                matrix_add_special_token=matrix_add_special_token
+                                matrix_add_special_token=matrix_add_special_token,
+                                save_type=model_args.save_type
                             )
                             use_cpu = True
                         if emb is not None and input_seq_len > model_args.embedding_fixed_len_a_time:
@@ -817,6 +873,7 @@ def main(model_args):
                                 model_args,
                                 embedding_type="matrix",
                                 matrix_add_special_token=matrix_add_special_token,
+                                save_type=model_args.save_type,
                                 use_cpu=use_cpu
                             )
                         if use_cpu:
@@ -830,7 +887,8 @@ def main(model_args):
                             repr_layers=[-1],
                             truncation_seq_length=truncation_seq_length,
                             device=model_args.device,
-                            matrix_add_special_token=matrix_add_special_token
+                            matrix_add_special_token=matrix_add_special_token,
+                            save_type=model_args.save_type
                         )
                         use_cpu = False
                         if emb is None:
@@ -842,7 +900,8 @@ def main(model_args):
                                 repr_layers=[-1],
                                 truncation_seq_length=truncation_seq_length,
                                 device=torch.device("cpu"),
-                                matrix_add_special_token=matrix_add_special_token
+                                matrix_add_special_token=matrix_add_special_token,
+                                save_type=model_args.save_type
                             )
                             use_cpu = True
                         # embedding全
@@ -856,6 +915,7 @@ def main(model_args):
                                 model_args,
                                 embedding_type="matrix",
                                 matrix_add_special_token=matrix_add_special_token,
+                                save_type=model_args.save_type,
                                 use_cpu=use_cpu
                             )
                         if use_cpu:
@@ -868,14 +928,26 @@ def main(model_args):
                                 emb = emb[0, :]
                             elif vector_type == "max":
                                 if matrix_add_special_token:
-                                    emb = np.max(emb[1:-1, :], axis=0)
+                                    if model_args.save_type == "numpy":
+                                        emb = np.max(emb[1:-1, :], axis=0)
+                                    else:
+                                        emb = torch.amax(emb[1:-1, :], dim=0)
                                 else:
-                                    emb = np.max(emb, axis=0)
+                                    if model_args.save_type == "numpy":
+                                        emb = np.max(emb, axis=0)
+                                    else:
+                                        emb = torch.amax(emb, dim=0)
                             else:
                                 if matrix_add_special_token:
-                                    emb = np.mean(emb[1:-1, :], axis=0)
+                                    if model_args.save_type == "numpy":
+                                        emb = np.mean(emb[1:-1, :], axis=0)
+                                    else:
+                                        emb = torch.mean(emb[1:-1, :], dim=0)
                                 else:
-                                    emb = np.mean(emb, axis=0)
+                                    if model_args.save_type == "numpy":
+                                        emb = np.mean(emb, axis=0)
+                                    else:
+                                        emb = torch.mean(emb, dim=0)
                         torch.save(emb, embedding_filepath)
                         break
                     print("%s embedding error, max_len from %d truncate to %d" % (

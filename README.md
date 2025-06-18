@@ -93,7 +93,7 @@ Scripts in `algorithms/`
 
 
 **Suggestions and Instructions:**
-1) Try to use a large GPU-memory machine for embedding reasoning, such as A100, H100, H200, etc., so that long sequences can be processed once.       
+1) Try to use a large GPU-memory machine for embedding inference, such as A100, H100, H200, etc., so that long sequences can be processed once.       
    LucaOne can process sequences of about `2800` in length at one time under A100;
 2) For long sequences, LucaOne will do overlapped fragments in the sequence for embedding and finally merge them into a completed embedding matrix.        
    Please set `--embedding_complete` and `--embedding_complete_seg_overlap`;
@@ -128,6 +128,7 @@ Scripts in `algorithms/`
     * seq_type: type of input sequence: `gene` or `prot`, `gene` for nucleic acid(DNA or RNA), `prot` for protein.        
     * input_file: the input file path for embedding(format: csv or fasta). The seq_id in the file must be unique and cannot contain special characters.     
     * save_path: the saving dir for storing the embedding file, one sequence for one embedding file.     
+    * save_type: the embedding save type: `numpy` or `tensor`, default: `numpy`      
     * embedding_complete: When `embedding_complete` is set, `truncation_seq_length` is invalid. If the GPU memory is not enough to infer the entire sequence at once, it is used to determine whether to perform segmented completion (if this parameter is not used, 0.95*len is truncated each time until the CPU can process the length).       
     * embedding_complete_seg_overlap: When `embedding_complete` is set, whether the method of overlap is applicable to segmentation(overlap sliding window)
     * embedding_fixed_len_a_time: When the input sequence is too long for your GPU to complete the inference at once, you can specify the fixed length of the inference at once(default: None)     
@@ -168,6 +169,7 @@ python inference_embedding_lucaone.py \
     --id_idx 0 \
     --seq_idx 1 \
     --save_path ../embedding/lucaone/test_data/gene/test_gene/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -191,6 +193,7 @@ python inference_embedding_lucaone.py \
     --id_idx 0 \
     --seq_idx 1 \
     --save_path ../embedding/lucaone-gene/test_data/gene/test_gene/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -215,6 +218,7 @@ python inference_embedding_lucaone.py \
     --id_idx 2 \
     --seq_idx 3 \
     --save_path ../embedding/lucaone/test_data/prot/test_prot/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -236,6 +240,7 @@ python inference_embedding_lucaone.py \
     --id_idx 2 \
     --seq_idx 3 \
     --save_path ../embedding/lucaone-prot/test_data/prot/test_prot/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -263,6 +268,7 @@ python inference_embedding_lucaone.py \
     --seq_type gene \
     --input_file ../data/test_data/gene/test_gene.fasta \
     --save_path ../embedding/lucaone/test_data/gene/test_gene/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -282,6 +288,7 @@ python inference_embedding_lucaone.py \
     --seq_type gene \
     --input_file ../data/test_data/gene/test_gene.fasta \
     --save_path ../embedding/lucaone-gene/test_data/gene/test_gene/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -304,6 +311,7 @@ python inference_embedding_lucaone.py \
     --seq_type prot \
     --input_file ../data/test_data/prot/test_prot.fasta \
     --save_path ../embedding/lucaone/test_data/prot/test_prot/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -323,6 +331,7 @@ python inference_embedding_lucaone.py \
     --seq_type prot \
     --input_file ../data/test_data/prot/test_prot.fasta \
     --save_path ../embedding/lucaone-prot/test_data/prot/test_prot/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -353,6 +362,7 @@ python inference_embedding_dnabert2.py \
     --id_idx 0 \
     --seq_idx 1 \
     --save_path ../embedding/danbert2/test_data/prot/test_gene/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -370,6 +380,7 @@ python inference_embedding_dnabert2.py \
     --seq_type gene \
     --input_file ../data/test_data/prot/test_gene.fasta \
     --save_path ../embedding/danbert2/test_data/prot/test_gene/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -393,6 +404,7 @@ python inference_embedding_esm.py \
     --id_idx 0 \
     --seq_idx 1 \
     --save_path ../embedding/esm2/test_data/prot/test_prot/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -413,6 +425,7 @@ python inference_embedding_esm.py \
     --seq_type prot \
     --input_file ../data/test_data/prot/test_prot.fasta \
     --save_path ../embedding/esm2/test_data/prot/test_prot/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \

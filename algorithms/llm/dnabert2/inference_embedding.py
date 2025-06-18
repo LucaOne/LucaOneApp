@@ -39,7 +39,8 @@ def predict_embedding(
         truncation_seq_length=4094,
         device=None,
         version="dnabert2",
-        matrix_add_special_token=False
+        matrix_add_special_token=False,
+        save_type="numpy"
 ):
     """
     use sequence to predict the seq embedding matrix or vector([CLS])
@@ -51,6 +52,7 @@ def predict_embedding(
     :param device: running device
     :param version: llm version
     :param matrix_add_special_token: embedding matrix contains [CLS] and [SEP] vector or not
+    :param save_type:
     :return: embedding, processed_seq_len
     """
 
@@ -106,12 +108,16 @@ def predict_embedding(
             if "representations" in embedding_type or "matrix" in embedding_type:
                 # embedding matrix contain [CLS] and [SEP] vector
                 if matrix_add_special_token:
-                    embedding = out[0].to(device="cpu")[0, 0: truncate_len + 2].clone().numpy()
+                    embedding = out[0].to(device="cpu")[0, 0: truncate_len + 2].clone()
                 else:
-                    embedding = out[0].to(device="cpu")[0, 1: truncate_len + 1].clone().numpy()
+                    embedding = out[0].to(device="cpu")[0, 1: truncate_len + 1].clone()
+                if save_type == "numpy":
+                    embedding = embedding.numpy()
                 embeddings["representations"] = embedding
             if "bos" in embedding_type or "vector" in embedding_type:
-                embedding = out[0].to(device="cpu")[0, 0].clone().numpy()
+                embedding = out[0].to(device="cpu")[0, 0].clone()
+                if save_type == "numpy":
+                    embedding = embedding.numpy()
                 embeddings["bos_representations"] = embedding
             if "contacts" in embedding_type:
                 # to do

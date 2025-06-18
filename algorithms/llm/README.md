@@ -4,7 +4,7 @@
 for `gene` or `prot`
 
 **Suggestions and Instructions:**
-1) Try to use a large GPU-memory machine for embedding reasoning, such as A100, H100, H200, etc., so that long sequences can be processed once.       
+1) Try to use a large GPU-memory machine for embedding inference, such as A100, H100, H200, etc., so that long sequences can be processed once.       
    LucaOne can process sequences of about `2800` in length at one time under A100;
 2) For long sequences, LucaOne will do overlapped fragments in the sequence for embedding and finally merge them into a completed embedding matrix.        
    Please set `--embedding_complete` and `--embedding_complete_seg_overlap`;
@@ -35,6 +35,7 @@ python get_embedding.py \
     --seq_type gene \
     --input_file ../../../data/test_data/gene/test_gene.fasta \
     --save_path ../../../embedding/lucaone/test_data/gene/test_gene \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -54,6 +55,7 @@ python get_embedding.py \
     --seq_type prot \
     --input_file ../../../data/test_data/prot/test_prot.fasta \
     --save_path ../../../embedding/lucaone/test_data/prot/test_prot \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -75,6 +77,7 @@ python predict_embedding.py \
     --seq_type prot \
     --input_file ../../../data/prot.fasta \
     --save_path ../../../matrices/esm2/prot/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -94,6 +97,7 @@ python inference_embedding.py \
     --seq_type gene \
     --input_file ../../../data/gene.fasta \
     --save_path ../../../../matrices/dnabert2/gene/ \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \

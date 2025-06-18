@@ -60,21 +60,34 @@ def get_args():
                         help="the llm checkpoint step.")
 
     # for embedding
-    parser.add_argument("--embedding_type",
-                        type=str,
-                        default="matrix",
-                        choices=["matrix", "vector"],
-                        help="the llm embedding type.")
-    parser.add_argument("--vector_type",
-                        type=str,
-                        default="mean",
-                        choices=["mean", "max", "cls"],
-                        help="the llm vector embedding type.")
-    parser.add_argument("--trunc_type",
-                        type=str,
-                        default="right",
-                        choices=["left", "right"],
-                        help="llm trunc type when the seq is too longer.")
+    parser.add_argument(
+        "--embedding_type",
+        type=str,
+        default="matrix",
+        choices=["matrix", "vector"],
+        help="the llm embedding type."
+    )
+    parser.add_argument(
+        "--save_type",
+        type=str,
+        default="numpy",
+        choices=["tensor", "numpy"],
+        help="the embedding save type(tensor or numpy)."
+    )
+    parser.add_argument(
+        "--vector_type",
+        type=str,
+        default="mean",
+        choices=["mean", "max", "cls"],
+        help="the llm vector embedding type."
+    )
+    parser.add_argument(
+        "--trunc_type",
+        type=str,
+        default="right",
+        choices=["left", "right"],
+        help="llm trunc type when the seq is too longer."
+    )
     parser.add_argument("--truncation_seq_length", type=int, default=4094,
                         help="the llm truncation seq length(not contain [CLS] and [SEP].")
     parser.add_argument("--matrix_add_special_token", action="store_true",
