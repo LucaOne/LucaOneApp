@@ -30,6 +30,7 @@ python get_embedding.py \
     --seq_type gene \
     --input_file ../../../data/test_data/gene/test_gene.fasta \
     --save_path ../../../embedding/lucaone/test_data/gene/test_gene \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -49,6 +50,7 @@ python get_embedding.py \
     --seq_type prot \
     --input_file ../../../data/test_data/prot/test_prot.fasta \
     --save_path ../../../embedding/lucaone/test_data/prot/test_prot \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -70,6 +72,7 @@ python predict_embedding.py \
     --seq_type prot \
     --input_file ../../../data/test_data/prot/test_prot.fasta \
     --save_path ../../../embedding/esm2/test_data/prot/test_prot \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
@@ -89,6 +92,7 @@ python inference_embedding.py \
     --seq_type gene \
     --input_file ../../../data/test_data/gene/test_gene.fasta \
     --save_path ../../../embedding/dnabert2/test_data/gene/test_gene \
+    --save_type numpy \
     --embedding_type matrix \
     --matrix_add_special_token \
     --embedding_complete \
