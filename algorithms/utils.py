@@ -502,7 +502,7 @@ def load_trained_model(model_config, args, model_class, model_dirpath):
         pretrained_net_dict = torch.load(os.path.join(model_dirpath, "pytorch.pth"),
                                          map_location=torch.device("cpu"))
         model_state_dict_keys = set()
-        for key in model.state_dict():
+        for key in model.state_dict().keys():
             model_state_dict_keys.add(key)
         new_state_dict = OrderedDict()
         for k, v in pretrained_net_dict.items():

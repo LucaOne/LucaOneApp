@@ -207,6 +207,7 @@ def main(model_args):
                             else:
                                 emb = torch.mean(emb, dim=0)
                 torch.save(emb, embedding_filepath)
+                torch.cuda.empty_cache()
             else:
                 print("%s exists." % embedding_filepath)
             done += 1
