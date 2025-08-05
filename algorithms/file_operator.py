@@ -38,7 +38,7 @@ def clean_seq_esm(seq_id, seq):
             invalid_char_set.add(ch)
             has_invalid_char = True
     if has_invalid_char:
-        print("id: %s. Seq: %s" % (protein_id, seq))
+        print("id: %s. Seq: %s" % (seq_id, seq))
         print("invalid char set:", invalid_char_set)
     return new_seq
 
