@@ -519,7 +519,7 @@ def load_trained_model(model_config, args, model_class, model_dirpath):
     return model
 
 
-def clean_seq(protein_id, seq, return_rm_index=False):
+def clean_seq_esm(protein_id, seq, return_rm_index=False):
     seq = seq.upper()
     new_seq = ""
     has_invalid_char = False
