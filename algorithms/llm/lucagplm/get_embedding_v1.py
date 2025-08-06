@@ -442,9 +442,9 @@ def predict_embedding(
             embeddings["contacts"] = embeddings["contacts"].numpy()
 
     if len(embeddings) > 1:
-        return embeddings, processed_seq
+        return embeddings, processed_seq_len
     elif len(embeddings) == 1:
-        return list(embeddings.items())[0][1], processed_seq
+        return list(embeddings.items())[0][1], processed_seq_len
     else:
         return None, None
 
