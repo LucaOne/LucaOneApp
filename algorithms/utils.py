@@ -34,13 +34,11 @@ except ImportError:
     from algorithms.file_operator import file_reader
 
 
-
 common_nucleotide_set = {'A', 'T', 'C', 'G', 'U', 'N'}
 
 # not {'O', 'U', 'Z', 'J', 'B'}
 # Common amino acids
 common_amino_acid_set = {'R', 'X', 'S', 'G', 'W', 'I', 'Q', 'A', 'T', 'V', 'K', 'Y', 'C', 'N', 'L', 'F', 'D', 'M', 'P', 'H', 'E'}
-
 
 
 def to_device(device, batch):
@@ -54,8 +52,8 @@ def to_device(device, batch):
     sample_num = 0
     tens = None
     for item1 in batch.items():
-        new_batch[item1[0]] = {}
         if isinstance(item1[1], dict):
+            new_batch[item1[0]] = {}
             for item2 in item1[1].items():
                 new_batch[item1[0]][item2[0]] = {}
                 if isinstance(item2[1], dict):
