@@ -67,7 +67,7 @@ Scripts in `algorithms/`
 
 **Suggestions and Instructions:**
 1) Try to use a large GPU-memory machine for embedding reasoning, such as A100, H100, H200, etc., so that long sequences can be processed once.       
-   LucaOne can process sequences of about `2800` in length at one time under A100;
+   LucaOne can process sequences of about `3400` in length at one time under A100;
 2) For long sequences, LucaOne will do overlapped fragments in the sequence for embedding and finally merge them into a completed embedding matrix.        
    Please set `--embedding_complete` and `--embedding_complete_seg_overlap`;
 3) If the GPU memory is not enough to process the longer sequence, it will use the CPU for embedding, so the speed will be reduced.       
@@ -77,10 +77,11 @@ Scripts in `algorithms/`
 5) If `--embedding_complete` is not set, the code will truncate the sequence embedding according to the value of `--truncation_seq_length`;
 6) For proteins, the length of most proteins is less than 1000; there are not many ultra-long protein sequences, so the value of `--embedding_fixed_len_a_time` can be set a large value or not be set;
 7) For DNA, the DNA sequence of many tasks is very long; please set `--embedding_fixed_len_a_time`.  
-   The larger the amount of ultra-long sequence, the smaller value should be set, such as `2800` under A100.      
+   The larger the amount of ultra-long sequence, the smaller value should be set, such as `3400` under A100.      
    If the GPU embedding fails to process the longer sequence, the CPU will be called.      
    When the amount of dataset is not large, the spent time will not be long;
-8) For RNA, most RNA is not very long, so the processing method can be consistent with the protein, so the `--embedding_fixed_len_a_time` can be set a larger value or not be set.
+8) For RNA, most RNA is not very long, so the processing method can be consistent with the protein, so the `--embedding_fixed_len_a_time` can be set a larger value or not be set.        
+9) You can set `--use_bp16` for long sequences embedding;   
 
 ### Parameters
 1) LucaOne checkpoint parameters:      
@@ -103,7 +104,8 @@ Scripts in `algorithms/`
     * embedding_complete: When `embedding_complete` is set, `truncation_seq_length` is invalid. If the GPU memory is not enough to infer the entire sequence at once, it is used to determine whether to perform segmented completion (if this parameter is not used, 0.95*len is truncated each time until the CPU can process the length).       
     * embedding_complete_seg_overlap: When `embedding_complete` is set, whether the method of overlap is applicable to segmentation(overlap sliding window)
     * embedding_fixed_len_a_time: When the input sequence is too long for your GPU to complete the inference at once, you can specify the fixed length of the inference at once(default: None)     
-    * gpu: the gpu id to use(-1 for cpu).
+   * use_bp16: whether to use bp16;    
+    * gpu_id: the gpu id to use(-1 for cpu).
 
 3) Optional parameters:    
     * id_idx & seq_idx: when the input file format is csv file, need to use `id_idx` and `seq_idx` to specify the column index in the csv (starting with 0).
@@ -146,7 +148,8 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu_id 0   
+    --use_bp16 \
+    --gpu_id 0    
 
 
 # for protein
@@ -171,7 +174,8 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu_id 0   
+    --use_bp16 \
+    --gpu_id 0  
 ```
 
 #### 2) the **fasta** file format of input   
@@ -200,7 +204,8 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu_id 0   
+    --use_bp16 \
+    --gpu_id 0  
 ```   
 
 ```shell
@@ -224,7 +229,8 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --gpu_id 0   
+    --use_bp16 \
+    --gpu_id 0  
 ```
 
 ## 5. Embedding using DNABert2 for Gene(DNA or RNA)            

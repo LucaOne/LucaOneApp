@@ -99,9 +99,17 @@ def get_args():
                         help="segment overlap when the seq is too longer.")
     parser.add_argument("--embedding_fixed_len_a_time", type=int, default=None,
                         help="the embedding fixed length of once inference for longer sequence")
-
-    parser.add_argument('--gpu_id', type=int, default=-1,
-                        help="the gpu id to use.")
+    parser.add_argument(
+        "--use_bp16",
+        action="store_true",
+        help="whether to use bp16"
+    )
+    parser.add_argument(
+        '--gpu_id',
+        type=int,
+        default=-1,
+        help="the gpu id to use."
+    )
 
     input_args = parser.parse_args()
     return input_args
