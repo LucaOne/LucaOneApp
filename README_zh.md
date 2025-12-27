@@ -2,6 +2,11 @@
 使用LucaOne对序列进行embedding    
 
 ## TimeLine   
+## TimeLine
+* 2025/12/26:   
+  LucaOne now supports **BF16** for embedding inference.      
+  add parameter: **--use_bp16**   
+
 * 2025/08/15:     
   **Huggingface**     
   <a href='https://huggingface.co/LucaGroup'>https://huggingface.co/LucaGroup </a>
@@ -165,7 +170,6 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --use_bp16 \
     --gpu_id 0  
 ```
 
@@ -188,7 +192,6 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --use_bp16 \
     --gpu_id 0  
 ```
 
@@ -214,7 +217,6 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --use_bp16 \
     --gpu_id 0  
  ```
 
@@ -237,7 +239,6 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --use_bp16 \
     --gpu_id 0  
 ```
 
@@ -263,7 +264,6 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --use_bp16 \
     --gpu_id 0  
 ```
 
@@ -284,7 +284,6 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --use_bp16 \
     --gpu_id 0  
 ```   
 
@@ -309,7 +308,6 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --use_bp16 \
     --gpu_id 0   
 ```
 
@@ -331,7 +329,6 @@ python inference_embedding_lucaone.py \
     --matrix_add_special_token \
     --embedding_complete \
     --embedding_complete_seg_overlap \
-    --use_bp16 \
     --gpu_id 0  
 ```
 
