@@ -1,6 +1,7 @@
 # LucaOne APP
 使用LucaOne对序列进行embedding    
 
+
 ## TimeLine     
 * **2025/12/31**    
   LucaOne now supports the Hugging Face interface for further training.      
