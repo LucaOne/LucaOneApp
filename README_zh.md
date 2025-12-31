@@ -4,7 +4,8 @@
 ## TimeLine     
 * **2025/12/31**    
   LucaOne now supports the Hugging Face interface for further training.      
-  It allows for various training modes, including using sequence-only inputs or injecting biological knowledge following the LucaOne framework. You can fine-tune the model for both sequence-level and token-level classification or regression tasks.
+  It allows for various training modes, including using sequence-only inputs or injecting biological knowledge following the LucaOne framework. You can fine-tune the model for both sequence-level and token-level classification or regression tasks.        
+  Please refer to the Hugging Face address: https://huggingface.co/collections/LucaGroup/lucaone, or the `huggingface` branch of this repository.
 
     - **Hugging Face Native**: Full support for `AutoModel`, `AutoModelForMaskedLM`, `AutoModelForSequenceClassification`, `AutoModelForTokenClassification`, `AutoConfig`, and `AutoTokenizer`.
     - **Unified Architecture**: Single model architecture handling multiple biological modalities.
