@@ -16,7 +16,10 @@
         - `LucaGPLMForTokenClassification`: For residue-level tasks (e.g., secondary structure, binding sites, or post-translational modifications).
     - **Extensible**: Easily adaptable to custom downstream tasks using the standard `transformers` API.
 
-    
+* 2025/12/26:   
+  LucaOne now supports **BF16** for embedding inference.      
+  add parameter: **--use_bp16**
+
 * 2025/08/15:     
   **Huggingface**     
   <a href='https://huggingface.co/LucaGroup'>https://huggingface.co/LucaGroup </a>
