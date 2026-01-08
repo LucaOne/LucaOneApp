@@ -161,9 +161,9 @@ def get_args():
         help="the embedding fixed length of once inference for longer sequence."
     )
     parser.add_argument(
-        "--use_bp16",
+        "--use_bf16",
         action="store_true",
-        help="whether to use bp16"
+        help="whether to use bf16"
     )
     parser.add_argument(
         '--gpu_id',
