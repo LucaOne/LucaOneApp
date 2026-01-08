@@ -19,7 +19,7 @@
 
 * 2025/12/26:   
   LucaOne now supports **BF16** for embedding inference.      
-  add parameter: **--use_bp16**
+  add parameter: **--use_bf16**
 
 * 2025/08/15:     
   **Huggingface**     
@@ -121,7 +121,7 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 7）对于DNA，因为很多任务的DNA序列很长，那么请设置`--embedding_fixed_len_a_time`。    
 如果数据集中超长序列数据量越多，该值设置越小一点，比如在A100下设置为`3400`，否则设置大一点，如果GPU根据这个长度embedding失败，则会调用CPU。如果数据集数不大，则时间不会很久；          
 8）对于RNA，因为大部分RNA不会很长，因此与蛋白处理方式一致，因此可以将`--embedding_fixed_len_a_time`设置长一点或者不设置；    
-9) You can set `--use_bp16` for long sequences embedding(混合精度，更快更节省显存);
+9) You can set `--use_bf16` for long sequences embedding(混合精度，更快更节省显存);
 
 机器：GPU可用的机器(如我们的A100可用的机器)         
 位置：cd LucaOneApp/algorithms                
@@ -150,7 +150,7 @@ Trained LucaOne Checkpoint FTP: <a href='http://47.93.21.181/lucaone/TrainedChec
 * embedding_complete: 当 `embedding_complete`被设置的时候, `truncation_seq_length`是无效的. 如果显存不够一次性推理整个序列，是否进行分段补全（如果不使用该参数，则每次截断0.95*len直到显卡可容纳的长度  
 * embedding_complete_seg_overlap: 当`embedding_complete`被设置的时候, 使用对序列分段embedding的分段是否重叠(overlap sliding window)    
 * embedding_fixed_len_a_time: When the input sequence is too long for your GPU to complete the inference at once, you can specify the fixed length of the inference at once(default: None)       
-* use_bp16: whether to use bp16;   
+* use_bf16: whether to use bf16;   
 * gpu_id: 使用哪一个gpu id       
 
 #### 3) 可选参数:     
