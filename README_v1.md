@@ -104,7 +104,7 @@ Scripts in `algorithms/`
     * embedding_complete: When `embedding_complete` is set, `truncation_seq_length` is invalid. If the GPU memory is not enough to infer the entire sequence at once, it is used to determine whether to perform segmented completion (if this parameter is not used, 0.95*len is truncated each time until the CPU can process the length).       
     * embedding_complete_seg_overlap: When `embedding_complete` is set, whether the method of overlap is applicable to segmentation(overlap sliding window)
     * embedding_fixed_len_a_time: When the input sequence is too long for your GPU to complete the inference at once, you can specify the fixed length of the inference at once(default: None)     
-   * use_bf16: whether to use bf16;    
+    * use_bf16: whether to use bf16;    
     * gpu_id: the gpu id to use(-1 for cpu).
 
 3) Optional parameters:    
