@@ -770,7 +770,10 @@ def main(args):
                         # print("emb shape:", embedding_info.shape)
                         if embedding_type == "vector":
                             if vector_type == "cls":
-                                emb = emb[0, :]
+                                if args.save_type == "numpy":
+                                    emb = emb[0, :].copy()
+                                else:
+                                    emb = emb[0, :].clone()
                             elif vector_type == "max":
                                 if matrix_add_special_token:
                                     if args.save_type == "numpy":
